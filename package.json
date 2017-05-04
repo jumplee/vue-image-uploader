@@ -1,0 +1,40 @@
+{
+  "name": "vue-image-uploader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/uploader.js",
+  "scripts": {
+    "dev": "./node_modules/.bin/webpack",
+    "build": "./node_modules/.bin/babel src/uploader.js --out-file dist/uploader.js",
+    "server": "node ./server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jumplee/vue-image-uploader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jumplee/vue-image-uploader/issues"
+  },
+  "homepage": "https://github.com/jumplee/vue-image-uploader#readme",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.4.0",
+    "express": "^4.15.2",
+    "multiparty": "^4.1.3",
+    "node-sass": "^4.5.2",
+    "sass-loader": "^6.0.3",
+    "url-loader": "^0.5.8",
+    "vue-loader": "^12.0.2",
+    "vue-template-compiler": "^2.3.2",
+    "webpack": "^2.4.1"
+  },
+  "dependencies": {
+    "css-loader": "^0.28.1",
+    "jump-uploader": "git+https://github.com/jumplee/uploader.git",
+    "vue-html-loader": "^1.2.4"
+  }
+}
