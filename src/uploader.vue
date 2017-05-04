@@ -3,9 +3,9 @@
         <div class="mask" v-show="show">
             <div class="panel">
                 <h2>选择图片
-<span class="close" @click="close(true)">×</span>
-
-                </h2>
+                                        <span class="close" @click="close(true)">×</span>
+                        
+                                    </h2>
                 <div ref="frame" class="image-list">
                     <template v-if="files.length===0">
                         <div class="place-holder">
@@ -14,7 +14,7 @@
                                 <button @click="addFile" class="btn">请添加图片</button>
                             </div>
                         </div>
-                        
+    
                     </template>
                     <div class="image-item" :style="{height:boxWidth+'px'}" v-for="file in files">
                         <div class="title">
@@ -24,19 +24,26 @@
                             <template v-if="file.status===3">
                                 <span>上传失败</span>
                             </template>
-                           
+    
                             <span style="float:right" @click="del(file)">删除</span>
                         </div>
                         <template v-if="file.status===1">
-                                <img class="loader" src="./images/loader.svg" alt="">
+                            <img class="loader" src="./images/loader.svg" alt="">
                         </template>
                         <img :src="file.thumb" alt="" class="cover">
                     </div>
                 </div>
                 <div class="bottom">
                     <button class="btn" style="margin-right:15px;" @click="addFile()">添 加</button>
-                    <button class="btn" @click="up()">确 定</button>
-                    <input ref="fileInput" id="" style="display:none" type="file" @change="selectFile" multiple>
+                    <button class="btn" @click="up()">
+                        <template v-if="uploadFailed">
+                            继续上传
+                        </template>
+                        <template v-if="!uploadFailed">
+                            上 传
+                        </template>
+                    </button>
+                    <input ref="fileInput" :accept="fileAccept" style="display:none" type="file" @change="selectFile" multiple>
                 </div>
     
             </div>
@@ -45,13 +52,25 @@
 </template>
 <script>
 import Uploader from 'jump-uploader'
+/**
+ *  @version 0.1
+ *  vue的图片上传组件
+ * 
+ */
+const isDebug = false
+
 function log(info) {
-    console.log(info)
+    if (isDebug) {
+        console.log(info)
+    }
 }
 export default {
     props: {
         accept: {
             default: 'jpg,png,gif,bmp,jpeg'
+        },
+        fileAccept: {
+            default: 'image/jpg,image/jpeg,image/png,image/gif'
         },
         show: {
             default: false,
@@ -62,7 +81,7 @@ export default {
         return {
             files: [],
             boxWidth: 0,
-            uploadFailed:false
+            uploadFailed: false
         }
     },
     created() {
@@ -73,14 +92,14 @@ export default {
         })
         self._uploader = uploader
         // self.files = uploader.getFiles()
-        uploader.on('finish',function(success){
-            if(success){
-                self.uploadFailed=false
+        uploader.on('finish', function (success) {
+            if (success) {
+                self.uploadFailed = false
                 self.close()
-            }else{
-                self.uploadFailed=true
+            } else {
+                self.uploadFailed = true
             }
-            
+
         })
     },
     mounted() {
@@ -88,8 +107,8 @@ export default {
     },
     watch: {
         show(newVal) {
-            if(newVal){
-                this.files=this._uploader.getFiles()
+            if (newVal) {
+                this.files = this._uploader.getFiles()
             }
         }
     },
@@ -112,23 +131,21 @@ export default {
             this.$refs.fileInput.value = null;
             this.$refs.fileInput.click()
         },
-        close(cancel){
+        close(cancel) {
+            let self = this
+            var files = []
+            if (!cancel) {
+                self.files.forEach((item) => {
+                    if (item.remoteUrl) {
+                        files.push({
+                            url: item.remoteUrl
+                        })
+                    }
 
-            let self=this
-            var files=[]
-            if(!cancel){
-self.files.forEach((item)=>{
-                if(item.remoteUrl){
-                files.push({
-                                    url:item.remoteUrl
-                                })
-                }
-               
-            })
+                })
             }
-            
-            self.$emit('finish',files)
-            self.files=[]
+            self.$emit('finish', files)
+            self.files = []
             self._uploader.clear()
         }
     }
