@@ -3,9 +3,9 @@
         <div class="mask" v-show="show">
             <div class="panel">
                 <h2>选择图片
-                                        <span class="close" @click="close(true)">×</span>
-                        
-                                    </h2>
+                                                    <span class="close" @click="close(true)">×</span>
+                                    
+                                                </h2>
                 <div ref="frame" class="image-list">
                     <template v-if="files.length===0">
                         <div class="place-holder">
@@ -53,7 +53,7 @@
 <script>
 import Uploader from 'jump-uploader'
 /**
- *  @version 0.1
+ *  @version 0.1.1
  *  vue的图片上传组件
  * 
  */
@@ -75,6 +75,10 @@ export default {
         show: {
             default: false,
             type: Boolean
+        },
+        uploadUrl: {
+            type: String,
+            required: true
         }
     },
     data() {
@@ -87,7 +91,7 @@ export default {
     created() {
         var self = this
         var uploader = new Uploader({
-            uploadUrl: '/file/uploading',
+            uploadUrl: self.uploadUrl,
             accept: self.accept
         })
         self._uploader = uploader
