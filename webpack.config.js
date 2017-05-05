@@ -10,7 +10,6 @@ module.exports = {
     library: 'VueImageUploader',
     libraryTarget: 'umd',
   },
-  watch: true,
   devtool: 'source-map',
   module: {
     rules: [{

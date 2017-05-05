@@ -1,11 +1,11 @@
 {
   "name": "vue-image-uploader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
-  "main": "dist/uploader.js",
+  "main": "dist/vueImageUploader.js",
   "scripts": {
-    "dev": "./node_modules/.bin/webpack",
-    "build": "./node_modules/.bin/babel src/uploader.js --out-file dist/uploader.js",
+    "dev": "./node_modules/.bin/webpack --watch",
+    "build": "./node_modules/.bin/webpack",
     "server": "node ./server.js"
   },
   "repository": {

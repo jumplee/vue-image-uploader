@@ -139,7 +139,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /**
- *  @version 0.1
+ *  
  *  vue的图片上传组件
  * 
  */
@@ -161,6 +161,10 @@ function log(info) {
         show: {
             default: false,
             type: Boolean
+        },
+        uploadUrl: {
+            type: String,
+            required: true
         }
     },
     data() {
@@ -173,7 +177,7 @@ function log(info) {
     created() {
         var self = this;
         var uploader = new __WEBPACK_IMPORTED_MODULE_0_jump_uploader___default.a({
-            uploadUrl: '/file/uploading',
+            uploadUrl: self.uploadUrl,
             accept: self.accept
         });
         self._uploader = uploader;
@@ -333,7 +337,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "mask"
   }, [_c('div', {
     staticClass: "panel"
-  }, [_c('h2', [_vm._v("选择图片\n                                    "), _c('span', {
+  }, [_c('h2', [_vm._v("选择图片\n                                                    "), _c('span', {
     staticClass: "close",
     on: {
       "click": function($event) {
