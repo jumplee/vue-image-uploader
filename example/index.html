@@ -12,7 +12,7 @@
 <body>
     <div id="app">
         <button @click="addPicture()">添加图片</button>
-        <image-uploader @finish="onFinish" :show="showUploader"></image-uploader>
+        <image-uploader url="/file/uploading" @finish="onFinish" :show="showUploader"></image-uploader>
         <div class="item" v-for="file in files">
             <img :src="file.url" alt="">
         </div>

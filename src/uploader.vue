@@ -3,9 +3,8 @@
         <div class="mask" v-show="show">
             <div class="panel">
                 <h2>选择图片
-                                                        <span class="close" @click="close(true)">×</span>
-                                        
-                                                    </h2>
+                                            <span class="close" @click="close(true)">×</span>
+                                                                                    </h2>
                 <div ref="frame" class="image-list">
                     <template v-if="files.length===0">
                         <div class="place-holder">
@@ -24,7 +23,6 @@
                             <template v-if="file.status===3">
                                 <span>上传失败</span>
                             </template>
-    
                             <span style="float:right" @click="del(file)">删除</span>
                         </div>
                         <template v-if="file.status===1">
@@ -76,7 +74,7 @@ export default {
             default: false,
             type: Boolean
         },
-        uploadUrl: {
+        url: {
             type: String,
             required: true
         }
@@ -91,11 +89,11 @@ export default {
     created() {
         var self = this
         var uploader = new Uploader({
-            uploadUrl: self.uploadUrl,
+            uploadUrl: self.url,
             accept: self.accept
         })
         self._uploader = uploader
-        // self.files = uploader.getFiles()
+
         uploader.on('finish', function (success) {
             if (success) {
                 self.uploadFailed = false
