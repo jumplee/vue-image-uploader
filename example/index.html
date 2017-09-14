@@ -14,7 +14,7 @@
         <button @click="addPicture()">添加图片</button>
         <image-uploader url="/file/uploading" @finish="onFinish" :show="showUploader"></image-uploader>
         <div class="item" v-for="file in files">
-            <img :src="file.url" alt="">
+            <img :src="file.fileUrl" alt="">
         </div>
     </div>
     <script src="./vueImageUploader.js"></script>

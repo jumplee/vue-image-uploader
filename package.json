@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch",
     "build": "./node_modules/.bin/webpack",
-    "server": "node ./server.js"
+    "test": "open http://localhost:3000 && node ./server.js"
   },
   "repository": {
     "type": "git",
@@ -31,10 +31,10 @@
     "vue-loader": "^12.0.2",
     "vue-template-compiler": "^2.3.2",
     "webpack": "^2.4.1",
-    "css-loader": "^0.28.1"
+    "css-loader": "^0.28.1",
+    "vue-html-loader": "^1.2.4"
   },
   "dependencies": {
-    "jump-uploader": "git+https://github.com/jumplee/uploader.git",
-    "vue-html-loader": "^1.2.4"
+    "jump-uploader": "git+https://github.com/jumplee/uploader.git"
   }
 }

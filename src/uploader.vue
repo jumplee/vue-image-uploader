@@ -49,7 +49,7 @@
     </div>
 </template>
 <script>
-import Uploader from 'jump-uploader'
+import Uploader from './uploader'
 /**
  *  
  *  vue的图片上传组件
@@ -138,10 +138,8 @@ export default {
             var files = []
             if (!cancel) {
                 self.files.forEach((item) => {
-                    if (item.remoteUrl) {
-                        files.push({
-                            url: item.remoteUrl
-                        })
+                    if (item.returnJson.success) {
+                        files.push(item.returnJson)
                     }
 
                 })
