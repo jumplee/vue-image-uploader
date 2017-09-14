@@ -30,10 +30,10 @@
     "url-loader": "^0.5.8",
     "vue-loader": "^12.0.2",
     "vue-template-compiler": "^2.3.2",
-    "webpack": "^2.4.1"
+    "webpack": "^2.4.1",
+    "css-loader": "^0.28.1"
   },
   "dependencies": {
-    "css-loader": "^0.28.1",
     "jump-uploader": "git+https://github.com/jumplee/uploader.git",
     "vue-html-loader": "^1.2.4"
   }
