@@ -30,11 +30,12 @@ $zIndex:999;
 
 .panel {
     z-index: $zIndex+10;
-    width: 80%;
+    width:720px;
     padding: 15px;
     background: white;
     color: #333;
     margin: 100px auto 0 auto;
+    
     h2 {
         margin: 0;
         position: relative;
@@ -67,7 +68,9 @@ $zIndex:999;
     text-align: center;
     border: 1px solid #eee;
     box-sizing: border-box;
-    width: 25%;
+    width: 175px;
+    height: 175px;
+    margin: 0px 2px;
     &:hover {
         .title {
             display: block;
@@ -83,6 +86,7 @@ $zIndex:999;
         font-size: 14px;
         padding: 5px;
         box-sizing: border-box;
+        cursor: pointer;
     }
     .cover {
         height: 100%;
@@ -95,5 +99,18 @@ $zIndex:999;
         display: block;
         left: 50%;
         margin-left: -15px;
+    }
+}
+.percent{
+    width: 90%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    bottom: 8px;
+    left: 5%;
+    .percent-inner{
+        height:4px;
+        background: #5a5a5a;
+        width:0;
     }
 }

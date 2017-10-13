@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch",
     "build": "./node_modules/.bin/webpack",
-    "test": "open http://localhost:3000 && node ./server.js"
+    "test": "open http://localhost:3000/ && node ./server.js"
   },
   "repository": {
     "type": "git",
@@ -23,16 +23,23 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.4.0",
+    "css-loader": "^0.28.1",
+    "eslint": "^4.8.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-config-vue": "^2.0.2",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-vue": "^2.1.0",
+    "eslint-plugin-vuefix": "^0.2.1",
     "express": "^4.15.2",
     "multiparty": "^4.1.3",
     "node-sass": "^4.5.2",
     "sass-loader": "^6.0.3",
     "url-loader": "^0.5.8",
+    "vue-html-loader": "^1.2.4",
     "vue-loader": "^12.0.2",
     "vue-template-compiler": "^2.3.2",
-    "webpack": "^2.4.1",
-    "css-loader": "^0.28.1",
-    "vue-html-loader": "^1.2.4"
+    "webpack": "^2.4.1"
   },
   "dependencies": {
     "jump-uploader": "git+https://github.com/jumplee/uploader.git"
