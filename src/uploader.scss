@@ -29,8 +29,8 @@ $zIndex:999;
 }
 
 .panel {
-    width:720px;
-    padding: 15px;
+    width: 750px;
+ 
     background: white;
     color: #333;
     margin: 100px auto 0 auto;
@@ -40,12 +40,14 @@ $zIndex:999;
         position: relative;
     }
     .bottom {
-        margin-top: 15px;
+        padding: 15px;
+        border-top: 1px solid #eee;
     }
     .close {
         position: absolute;
-        top: -11px;
+        padding: 6px 15px;
         right: 0;
+        top: 0;
         font-size: 28px;
         color: gray;
         cursor: pointer;
@@ -53,10 +55,9 @@ $zIndex:999;
 }
 
 .image-list {
-    border: 1px dashed #eee;
     height: 500px;
     overflow: auto;
-    margin-top: 15px;
+    padding: 15px;
 }
 
 .image-item {
@@ -112,4 +113,9 @@ $zIndex:999;
         background: #5a5a5a;
         width:0;
     }
+}
+
+h2{
+    padding: 15px;
+    border-bottom:1px solid #eee;
 }
