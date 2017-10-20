@@ -30,6 +30,10 @@ export default {
     showProgress: {
       default: false,
       type: Boolean
+    },
+    zIndex: {
+      default: 999,
+      type: Number
     }
   },
   data(){

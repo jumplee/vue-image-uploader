@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/vueImageUploader.js",
   "scripts": {
-    "dev": "./node_modules/.bin/webpack --watch",
+    "dev": "./node_modules/.bin/webpack --watch ",
     "build": "./node_modules/.bin/webpack",
     "test": "open http://localhost:3000/ && node ./server.js"
   },

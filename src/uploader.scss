@@ -29,13 +29,12 @@ $zIndex:999;
 }
 
 .panel {
-    z-index: $zIndex+10;
     width:720px;
     padding: 15px;
     background: white;
     color: #333;
     margin: 100px auto 0 auto;
-    
+
     h2 {
         margin: 0;
         position: relative;
