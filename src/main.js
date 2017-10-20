@@ -76,6 +76,8 @@ export default {
         var file = files[i]
         self._uploader.addFile(file)
       }
+      // 避免vue不更新
+      self.files = self._uploader.getFiles()
     },
     up: function(){
       this._uploader.upload()
