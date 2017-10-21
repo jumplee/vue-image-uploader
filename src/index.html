@@ -10,7 +10,7 @@
                     <div class="place-holder">
                         <img @click="addFile" src="./images/add.png" alt="">
                         <div>
-                            <button type="button" @click="addFile" class="btn">请添加图片</button>
+                            <span @click="addFile" class="btn">请添加图片</span>
                         </div>
                     </div>
                 </template>
@@ -34,15 +34,15 @@
                 </div>
             </div>
             <div class="bottom">
-                <button class="btn" style="margin-right:15px;" @click="addFile()">添 加</button>
-                <button class="btn" @click="up()">
+                <span class="btn" style="margin-right:15px;" @click="addFile()">添 加</span>
+                <span class="btn" @click="up()">
                     <template v-if="uploadFailed">
                         继续上传
                     </template>
                     <template v-if="!uploadFailed">
                         上 传
                     </template>
-                </button>
+                </span>
                 <input ref="fileInput" :accept="fileAccept" style="display:none" type="file" @change="selectFile" multiple>
             </div>
         </div>

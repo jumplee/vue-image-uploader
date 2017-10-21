@@ -1,7 +1,7 @@
 {
   "name": "vue-image-uploader",
-  "version": "0.1.5",
-  "description": "",
+  "version": "0.1.6",
+  "description": "vue image upload component",
   "main": "./dist/vueImageUploader.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch ",
