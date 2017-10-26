@@ -53,9 +53,8 @@ export default {
       showProgress: self.showProgress
     })
     self._uploader = uploader
-
     uploader.on('finish', function(success){
-      self.updateUploadSuccessNum()
+      self.files = self.files.concat()
       self.uploadFinish = true
     })
   },
@@ -67,19 +66,20 @@ export default {
       if (newVal){
         this.files = this._uploader.getFiles()
       }
-    }
-  },
-
-  methods: {
-    updateUploadSuccessNum(){
+    },
+    files(newVal){
       let num = 0
-      this.files.forEach((item) => {
+      newVal.forEach((item) => {
         if(item.returnJson && item.returnJson.success){
           num++
         }
       })
+      console.log('files update')
       this.uploadSuccessNum = num
-    },
+    }
+  },
+
+  methods: {
     selectFile: function(e){
       var files = e.target.files
       var self = this
@@ -106,6 +106,7 @@ export default {
     },
     del: function(file){
       this._uploader.removeFile(file)
+      this.files = this._uploader.getFiles()
     },
     addFile(){
       this.$refs.fileInput.value = null

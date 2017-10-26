@@ -65,7 +65,8 @@
     box-sizing: border-box;
     width: 140px;
     height: 140px;
-    margin: 0px 1px;
+    margin: 1px;
+    vertical-align: top;
     &:hover {
         .title {
             display: block;
