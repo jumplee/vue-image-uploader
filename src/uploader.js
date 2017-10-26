@@ -2,7 +2,7 @@ import Ctrl from './ctrl'
 /**
  * @version 0.1.1 上传组件
  */
-const isDebug = false
+const isDebug = true
 
 // 文件上传状态
 const UPLOAD_STATUS = {
@@ -16,6 +16,12 @@ function log(info){
   if (isDebug){
     console.log(info)
   }
+}
+let counter = 0
+function uuid(){
+  var uuid = 'file-' + counter
+  counter++
+  return uuid
 }
 
 function query(key, value, list){
@@ -56,14 +62,11 @@ class Uploader extends Ctrl{
     super()
     var self = this
     self.xhr = new XMLHttpRequest()
-    self.counter = 0
-    self.uploadingCounter = 0
-    self._beforeLen = 0
     self._files = []
     self._queue = []
+    self.queueIndex = 0
     var defaultOptions = {
       uploadUrl: '',
-      uuidPrefix: 'file-',
       // 最多选择数量，默认为0不限制
       maxSize: 0,
       // 同时上传的最多数量
@@ -73,10 +76,10 @@ class Uploader extends Ctrl{
       fileParamName: 'file',
       // 只接受类型或者正则
       /**
-             * @example
-             * accept:'jpg,png,bmp,gif,jpeg'
-             * accept:'xls,doc,docx,ppt,pptx'
-             */
+       * @example
+       * accept:'jpg,png,bmp,gif,jpeg'
+       * accept:'xls,doc,docx,ppt,pptx'
+       */
       accept: '',
       thumb: {
         defaultUrl: 'defaultThumb.jpg'
@@ -103,42 +106,39 @@ class Uploader extends Ctrl{
   upload(){
     var self = this
     var options = self.options
-    if (self._uploading){
-      log('上传中...')
+
+    if(self.haveUploading()){
+      log('正在上传，请等待')
       return false
     }
-    self._uploading = true
+
+    // 上传的时候将上传失败的文件设置为等待
     self._files.forEach((item) => {
-      if (item.status === UPLOAD_STATUS.UPLOAD_ING ||
-                item.status === UPLOAD_STATUS.FAILED){
+      if (item.status === UPLOAD_STATUS.FAILED){
         item.status = UPLOAD_STATUS.WAIT
       }
     })
     self._queue = where('status', (file) => {
       return file.status === UPLOAD_STATUS.WAIT
     }, self._files)
-    self._timer = setInterval(function(){
-      var queue = self._queue
-      var len = Math.min(self.uploadingCounter + options.uploadFileMax, queue.length)
-      for (var i = self._beforeLen; i < len; i++){
-        self._upload(queue[i])
-      }
-      self._beforeLen = len
-      if (self.uploadingCounter + options.uploadFileMax > queue.length){
-        clearInterval(self._timer)
-      }
-      log(new Date())
-    }, 300)
+    var queue = self._queue
+    var len = Math.min(options.uploadFileMax, queue.length)
+    for (var i = 0; i < len; i++){
+      self._upload()
+    }
   }
-  _upload(file){
+  _upload(){
     var self = this
-    var options = self.options
-    // 不是等待状态的就不上传
-    if (file.status !== UPLOAD_STATUS.WAIT){
-      self.uploadingCounter++
+    const file = self._queue[self.queueIndex]
+    self.queueIndex++
+    if(typeof file === 'undefined'){
+      log('已经上传到最后')
       return false
     }
+    var options = self.options
     const xhr = new XMLHttpRequest()
+    // 20秒超时
+    xhr.timeout = 10 * 1000
     const formData = new FormData()
     formData.append(options.fileParamName, file.source)
     for (var key in options.param){
@@ -168,6 +168,13 @@ class Uploader extends Ctrl{
         self.onFail(file)
       }
     }
+    function onNetError(){
+      self.onFail(file)
+    }
+    // 无网络等原因导致错误
+    xhr.onerror = onNetError
+    // 请求超时
+    xhr.ontimeout = onNetError
     function updateProgress(event){
       var complete = (event.loaded / event.total * 100 | 0)
       console.log(complete)
@@ -180,16 +187,25 @@ class Uploader extends Ctrl{
     xhr.open('post', options.uploadUrl)
     xhr.send(formData)
   }
+  // 是否正在上传
+  haveUploading(){
+    var self = this
+    let haveUploading = false
+    for(const item of self._files){
+      if(item.status === UPLOAD_STATUS.UPLOAD_ING){
+        haveUploading = true
+        break
+      }
+    }
+    return haveUploading
+  }
   onEnd(file){
     var self = this
-
-    self.uploadingCounter++
+    self._upload()
     // 所有的文件都执行完毕，未必都成功
-    if (self.uploadingCounter === self._queue.length){
-      self._uploading = false
-      self.uploadingCounter = 0
-      self._beforeLen = 0
+    if (!self.haveUploading()){
       let _flag = true
+      self.queueIndex = 0
       self._files.forEach((item) => {
         if (item.status === UPLOAD_STATUS.FAILED){
           _flag = false
@@ -222,7 +238,7 @@ class Uploader extends Ctrl{
     }
     var file = {
       source: sourceFile,
-      id: self.uuid(),
+      id: uuid(),
       status: UPLOAD_STATUS.WAIT,
       thumb: options.thumb.defaultUrl
     }
@@ -284,16 +300,18 @@ class Uploader extends Ctrl{
   stop(){
 
   }
-  uuid(){
-    var uuid = this.options.uuidPrefix + this.counter
-    this.counter++
-    return uuid
-  }
+
   getFiles(){
     return this._files
   }
+  /**
+   * 将上传队列清空
+   */
   clear(){
+    //
     this._files = []
+    // 取消计数器
+    clearInterval(this._timer)
   }
 }
 module.exports = Uploader

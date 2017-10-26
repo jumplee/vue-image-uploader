@@ -39,8 +39,10 @@ export default {
   data(){
     return {
       files: [],
+      uploadSuccessNum: 0,
       boxWidth: 0,
-      uploadFailed: false
+      uploadFinish: true,
+      showPanelMask: false
     }
   },
   created(){
@@ -53,22 +55,31 @@ export default {
     self._uploader = uploader
 
     uploader.on('finish', function(success){
-      if (success){
-        self.uploadFailed = false
-        self.close()
-      } else {
-        self.uploadFailed = true
-      }
+      self.updateUploadSuccessNum()
+      self.uploadFinish = true
     })
   },
+
   watch: {
     show(newVal){
+      console.log('show:' + newVal)
+      // 当重新打开的时候
       if (newVal){
         this.files = this._uploader.getFiles()
       }
     }
   },
+
   methods: {
+    updateUploadSuccessNum(){
+      let num = 0
+      this.files.forEach((item) => {
+        if(item.returnJson && item.returnJson.success){
+          num++
+        }
+      })
+      this.uploadSuccessNum = num
+    },
     selectFile: function(e){
       var files = e.target.files
       var self = this
@@ -80,7 +91,18 @@ export default {
       self.files = self._uploader.getFiles()
     },
     up: function(){
-      this._uploader.upload()
+      // 没有需要选择的图片
+      if(this.files.length - this.uploadSuccessNum > 0){
+        if(this.uploadFinish){
+          this.uploadFinish = false
+          this._uploader.upload()
+        }
+      }else{
+        alert('请选择图片')
+      }
+    },
+    mask(){
+      // this.showPanelMask = true
     },
     del: function(file){
       this._uploader.removeFile(file)
@@ -94,13 +116,16 @@ export default {
       var files = []
       if (!cancel){
         self.files.forEach((item) => {
-          if (item.returnJson.success){
+          if (item.returnJson && item.returnJson.success){
             files.push(item.returnJson)
           }
         })
       }
       self.$emit('finish', files)
       self.files = []
+      // 上传状态
+      self.uploadFinish = true
+      self.uploadSuccessNum = 0
       self._uploader.clear()
     },
     percentStyle(file){
