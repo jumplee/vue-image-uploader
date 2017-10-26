@@ -4,7 +4,7 @@ import Uploader from './uploader'
  *  vue的图片上传组件
  * 
  */
-const isDebug = false
+const isDebug = true
 
 function log(info){
   if (isDebug){

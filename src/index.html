@@ -28,9 +28,11 @@
                         <img class="loader" src="./images/loader.svg" alt="">
                     </template>
                     <img :src="file.thumb" alt="" class="cover">
-                    <div class="percent">
+                    
+                    <!-- <div class="percent">
                         <div class="percent-inner" :style="percentStyle(file)"></div>
-                    </div>
+                    </div> -->
+                    <img src="./images/ok.png"  v-if="file.status===2" alt="" class="ok">
                 </div>
                 <div class="image-item" @click="addFile" v-if="files.length>0">
                     <img style="margin-top: 25px;" src="./images/add.png" alt="添加视频">

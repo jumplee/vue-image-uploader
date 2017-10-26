@@ -90,11 +90,11 @@
     .loader {
         position: absolute;
         top: 50%;
-        margin-top: -15px;
-        width: 30px;
-        display: block;
         left: 50%;
-        margin-left: -15px;
+        display: block;
+        width: 44px;
+        margin-top: -24px;
+        margin-left: -22px;
     }
 }
 .percent{
@@ -134,4 +134,10 @@ h2{
     right: 0;
     background: rgba(0, 0, 0, 0.1);
     position: absolute;
+}
+
+.ok{
+    position: absolute;
+    bottom:0;
+    right:0;
 }
