@@ -24,27 +24,19 @@ class Uploader extends Ctrl{
       // 只接受类型或者正则
       /**
        * @example
-       * accept:'jpg,png,bmp,gif,jpeg'
-       * accept:'xls,doc,docx,ppt,pptx'
+       * accept:['jpg','png','bmp','gif','jpeg']
        */
-      accept: '',
-      thumb: {
-        defaultUrl: 'defaultThumb.jpg'
-      }
+      accept: [],
+      // 是否有预览图
+      thumb: false,
+      // 默认不压缩
+      compress: false
     }
     if (!options.uploadUrl){
       throw Error('上传地址不能为空')
     }
     // 浅拷贝，对象属性会覆盖而不是合并
     self.options = Object.assign({}, defaultOptions, options)
-    if (typeof self.options.accept === 'string'){
-      const typeStr = self.options.accept.split(',').join('|')
-      // 黑人❓ 的全局模式g lastIndex会记录上次执行的位置，下次执行的时候从lastIndex开始查询
-      // self.options.acceptReg=new RegExp(`.*\\.(${typeStr})$`,'ig')
-      self.options.acceptReg = new RegExp(`.*\\.(${typeStr})$`, 'i')
-    } else if (typeof self.options.accept === 'object'){
-      self.options.acceptReg = self.options.accept
-    }
   }
 
   /**
@@ -184,16 +176,21 @@ class Uploader extends Ctrl{
   addFile(sourceFile){
     var self = this
     var options = self.options
-
-    if (options.acceptReg && !options.acceptReg.test(sourceFile.name)){
-      log(sourceFile.name + '不在accept设置范围内')
+    var ext = sourceFile.name.split('.').pop().toLowerCase()
+    if (options.accept.indexOf(ext) < 0){
+      options.onAcceptError({
+        name: sourceFile.name,
+        ext: ext
+      })
       return false
     }
     var file = {
       source: sourceFile,
       id: uuid(),
       status: UPLOAD_STATUS.WAIT,
-      thumb: options.thumb.defaultUrl
+      thumb: '',
+      name: sourceFile.name,
+      size: sourceFile.size
     }
 
     self._files.push(file)
@@ -215,40 +212,38 @@ class Uploader extends Ctrl{
     this._files.splice(targetIndex, 1)
   }
   _makeThumb(file){
-    this.makeThumb(file.source).then((thumbUrl) => {
+    this.makeThumb(file.source, (thumbUrl) => {
       file.thumb = thumbUrl
     })
   }
-  makeThumb(sourceFile){
-    return new Promise(function(resolve, reject){
-      var thumbOptions = this.options.thumb
-      var blob_url = createObjectURL(sourceFile)
-      var temp_image = new Image()
-      var canvas = document.createElement('canvas')
-      var preview_width = thumbOptions.width
-      var preview_height = thumbOptions.height
-      temp_image.src = blob_url
-      canvas.width = preview_width
-      canvas.height = preview_height
-      var ctx = canvas.getContext('2d')
-      temp_image.onload = function(){
-        ctx.drawImage(temp_image, 0, 0, preview_width, preview_height)
-        // 清空原来的BLOB对象，释放内存。
-        window.URL.revokeObjectURL(this.src)
-        // 耗时操作
-        var blob_image_url = canvas.toDataURL('image/jpeg')
-        resolve(blob_image_url)
-        // 切除引用关系
-        // delete temp_image;
-        // delete canvas;
-        // delete ctx;
-        this.src = null
-        canvas = null
-        ctx = null
-        temp_image.onload = null
-        temp_image = null
-      }
-    })
+  makeThumb(sourceFile, callback){
+    var thumbOptions = this.options.thumb
+    var blob_url = createObjectURL(sourceFile)
+    var temp_image = new Image()
+    var canvas = document.createElement('canvas')
+    var preview_width = thumbOptions.width
+    var preview_height = thumbOptions.height
+    temp_image.src = blob_url
+    canvas.width = preview_width
+    canvas.height = preview_height
+    var ctx = canvas.getContext('2d')
+    temp_image.onload = function(){
+      ctx.drawImage(temp_image, 0, 0, preview_width, preview_height)
+      // 清空原来的BLOB对象，释放内存。
+      window.URL.revokeObjectURL(this.src)
+      // 耗时操作
+      var blob_image_url = canvas.toDataURL('image/jpeg')
+      callback(blob_image_url)
+      // 切除引用关系
+      // delete temp_image;
+      // delete canvas;
+      // delete ctx;
+      this.src = null
+      canvas = null
+      ctx = null
+      temp_image.onload = null
+      temp_image = null
+    }
   }
   stop(){
 
@@ -263,8 +258,6 @@ class Uploader extends Ctrl{
   clear(){
     //
     this._files = []
-    // 取消计数器
-    clearInterval(this._timer)
   }
 }
 module.exports = Uploader

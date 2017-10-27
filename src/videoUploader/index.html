@@ -2,7 +2,7 @@
     <div class="mask" :style="{zIndex:zIndex}" v-show="show">
         <div class="panel">
             <div class="panel-mask" v-if="showPanelMask"></div>
-            <h2>选择图片
+            <h2>选择视频
                 <span class="close" @click="close(true)">×</span>
             </h2>
             <div ref="frame" class="image-list">
@@ -10,7 +10,7 @@
                     <div class="place-holder">
                         <img @click="addFile" src="../images/add.png" alt="">
                         <div>
-                            <span @click="addFile" class="btn">请添加图片</span>
+                            <span @click="addFile" class="btn">请添加视频</span>
                         </div>
                     </div>
                 </template>
@@ -27,8 +27,9 @@
                     <template v-if="file.status===1">
                         <img class="loader" src="../images/loader.svg" alt="">
                     </template>
-                    <img :src="file.thumb" alt="" class="cover">
-                    
+                    <img style="     height: 64px;
+                    margin-top: 36px;" src="../images/video.png" alt="" class="cover">
+                    <div class="name">{{file.name}}</div>
                     <div class="percent" v-if="file.percent && showProgress">
                         <div class="percent-inner" :style="percentStyle(file)"></div>
                     </div>
@@ -39,7 +40,7 @@
                 </div>
             </div>
             <div class="bottom">
-                选择{{files.length}}个图片，需要上传 {{files.length-uploadSuccessNum}}个
+                选择{{files.length}}个视频，需要上传 {{files.length-uploadSuccessNum}}个
                 <template v-if="uploadFinish">
                     <span class="btn" style="margin-left:15px" @click="up()">
                         上传

@@ -1,5 +1,5 @@
 // 文件上传状态
-const isDebug = false
+const isDebug = true
 
 let counter = 0
 

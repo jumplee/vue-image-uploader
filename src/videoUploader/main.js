@@ -1,5 +1,7 @@
 import Uploader from '../uploader'
 import { where, log } from '../func'
+import props from '../props'
+
 /**
  *  
  *  vue的图片上传组件
@@ -7,33 +9,18 @@ import { where, log } from '../func'
  */
 
 export default {
-  props: {
+  props: Object.assign({}, props, {
     accept: {
-      default: 'jpg,png,gif,bmp,jpeg'
+      type: Array,
+      default: function(){
+        return ['flv', 'mkv', 'avi', 'rm', 'rmvb', 'mpeg', 'mpg',
+          'ogg', 'ogv', 'mov', 'wmv', 'mp4', 'webm', 'mp3', 'wav']
+      }
     },
     fileAccept: {
-      default: 'image/jpg,image/jpeg,image/png,image/gif'
-    },
-    show: {
-      default: false,
-      type: Boolean
-    },
-    url: {
-      type: String,
-      required: true
-    },
-    showProgress: {
-      default: false,
-      type: Boolean
-    },
-    zIndex: {
-      default: 999,
-      type: Number
-    },
-    uploadConfig: {
-      timeout: 20
+      default: '*'
     }
-  },
+  }),
   data(){
     return {
       files: [],
@@ -48,7 +35,10 @@ export default {
     var uploader = new Uploader(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
-      showProgress: self.showProgress
+      showProgress: self.showProgress,
+      onAcceptError: function(e){
+        alert(e.ext + '类型文件不符合要求')
+      }
     }, self.uploadConfig))
     self._uploader = uploader
     uploader.on('finish', function(success){

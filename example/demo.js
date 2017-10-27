@@ -2,10 +2,13 @@ var app = new Vue({
   el: '#app',
   data: {
     showUploader: false,
-    files: []
+    showVideo: false,
+    files: [],
+    videos: []
   },
   components: {
-    'image-uploader': VueUploader.VueImageUploader
+    'image-uploader': VueUploader.VueImageUploader,
+    'video-uploader': VueUploader.VueVideoUploader
   },
   created: function(){
 
@@ -17,6 +20,13 @@ var app = new Vue({
     onFinish(files){
       this.files = files
       this.showUploader = false
+    },
+    addVideo(){
+      this.showVideo = true
+    },
+    onFinish2(files){
+      this.videos = files
+      this.showVideo = false
     }
   }
 })

@@ -1,6 +1,6 @@
 {
-  "name": "vue-jump-uploader",
-  "version": "0.2.0",
+  "name": "vue-image-uploader",
+  "version": "0.3.0",
   "description": "vue image upload component",
   "main": "./dist/vueUploader.js",
   "scripts": {

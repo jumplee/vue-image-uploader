@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -90,7 +90,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABLCAIAAAB7
 
 
 // 文件上传状态
-var isDebug = false;
+var isDebug = true;
 
 var counter = 0;
 
@@ -151,11 +151,50 @@ module.exports = {
 "use strict";
 
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  accept: {
+    type: Array,
+    default: function _default() {
+      return ['jpg', 'png', 'gif', 'bmp', 'jpeg'];
+    }
+  },
+  fileAccept: {
+    default: 'image/jpg,image/jpeg,image/png,image/gif'
+  },
+  show: {
+    default: false,
+    type: Boolean
+  },
+  url: {
+    type: String,
+    required: true
+  },
+  showProgress: {
+    default: false,
+    type: Boolean
+  },
+  zIndex: {
+    default: 999,
+    type: Number
+  },
+  uploadConfig: {
+    timeout: 20
+  }
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ctrl = __webpack_require__(12);
+var _ctrl = __webpack_require__(13);
 
 var _ctrl2 = _interopRequireDefault(_ctrl);
 
@@ -197,27 +236,19 @@ var Uploader = function (_Ctrl) {
       // 只接受类型或者正则
       /**
        * @example
-       * accept:'jpg,png,bmp,gif,jpeg'
-       * accept:'xls,doc,docx,ppt,pptx'
+       * accept:['jpg','png','bmp','gif','jpeg']
        */
-      accept: '',
-      thumb: {
-        defaultUrl: 'defaultThumb.jpg'
-      }
+      accept: [],
+      // 是否有预览图
+      thumb: false,
+      // 默认不压缩
+      compress: false
     };
     if (!options.uploadUrl) {
       throw Error('上传地址不能为空');
     }
     // 浅拷贝，对象属性会覆盖而不是合并
     self.options = Object.assign({}, defaultOptions, options);
-    if (typeof self.options.accept === 'string') {
-      var typeStr = self.options.accept.split(',').join('|');
-      // 黑人❓ 的全局模式g lastIndex会记录上次执行的位置，下次执行的时候从lastIndex开始查询
-      // self.options.acceptReg=new RegExp(`.*\\.(${typeStr})$`,'ig')
-      self.options.acceptReg = new RegExp('.*\\.(' + typeStr + ')$', 'i');
-    } else if (_typeof(self.options.accept) === 'object') {
-      self.options.acceptReg = self.options.accept;
-    }
     return _this;
   }
 
@@ -397,16 +428,21 @@ var Uploader = function (_Ctrl) {
     value: function addFile(sourceFile) {
       var self = this;
       var options = self.options;
-
-      if (options.acceptReg && !options.acceptReg.test(sourceFile.name)) {
-        (0, _func.log)(sourceFile.name + '不在accept设置范围内');
+      var ext = sourceFile.name.split('.').pop().toLowerCase();
+      if (options.accept.indexOf(ext) < 0) {
+        options.onAcceptError({
+          name: sourceFile.name,
+          ext: ext
+        });
         return false;
       }
       var file = {
         source: sourceFile,
         id: (0, _func.uuid)(),
         status: _func.UPLOAD_STATUS.WAIT,
-        thumb: options.thumb.defaultUrl
+        thumb: '',
+        name: sourceFile.name,
+        size: sourceFile.size
       };
 
       self._files.push(file);
@@ -432,42 +468,40 @@ var Uploader = function (_Ctrl) {
   }, {
     key: '_makeThumb',
     value: function _makeThumb(file) {
-      this.makeThumb(file.source).then(function (thumbUrl) {
+      this.makeThumb(file.source, function (thumbUrl) {
         file.thumb = thumbUrl;
       });
     }
   }, {
     key: 'makeThumb',
-    value: function makeThumb(sourceFile) {
-      return new Promise(function (resolve, reject) {
-        var thumbOptions = this.options.thumb;
-        var blob_url = (0, _func.createObjectURL)(sourceFile);
-        var temp_image = new Image();
-        var canvas = document.createElement('canvas');
-        var preview_width = thumbOptions.width;
-        var preview_height = thumbOptions.height;
-        temp_image.src = blob_url;
-        canvas.width = preview_width;
-        canvas.height = preview_height;
-        var ctx = canvas.getContext('2d');
-        temp_image.onload = function () {
-          ctx.drawImage(temp_image, 0, 0, preview_width, preview_height);
-          // 清空原来的BLOB对象，释放内存。
-          window.URL.revokeObjectURL(this.src);
-          // 耗时操作
-          var blob_image_url = canvas.toDataURL('image/jpeg');
-          resolve(blob_image_url);
-          // 切除引用关系
-          // delete temp_image;
-          // delete canvas;
-          // delete ctx;
-          this.src = null;
-          canvas = null;
-          ctx = null;
-          temp_image.onload = null;
-          temp_image = null;
-        };
-      });
+    value: function makeThumb(sourceFile, callback) {
+      var thumbOptions = this.options.thumb;
+      var blob_url = (0, _func.createObjectURL)(sourceFile);
+      var temp_image = new Image();
+      var canvas = document.createElement('canvas');
+      var preview_width = thumbOptions.width;
+      var preview_height = thumbOptions.height;
+      temp_image.src = blob_url;
+      canvas.width = preview_width;
+      canvas.height = preview_height;
+      var ctx = canvas.getContext('2d');
+      temp_image.onload = function () {
+        ctx.drawImage(temp_image, 0, 0, preview_width, preview_height);
+        // 清空原来的BLOB对象，释放内存。
+        window.URL.revokeObjectURL(this.src);
+        // 耗时操作
+        var blob_image_url = canvas.toDataURL('image/jpeg');
+        callback(blob_image_url);
+        // 切除引用关系
+        // delete temp_image;
+        // delete canvas;
+        // delete ctx;
+        this.src = null;
+        canvas = null;
+        ctx = null;
+        temp_image.onload = null;
+        temp_image = null;
+      };
     }
   }, {
     key: 'stop',
@@ -486,8 +520,6 @@ var Uploader = function (_Ctrl) {
     value: function clear() {
       //
       this._files = [];
-      // 取消计数器
-      clearInterval(this._timer);
     }
   }]);
 
@@ -497,7 +529,7 @@ var Uploader = function (_Ctrl) {
 module.exports = Uploader;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 /*
@@ -579,19 +611,19 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nNDJweCcgaGVpZ2h0PSc0MnB4JyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgY2xhc3M9InVpbC1kZWZhdWx0Ij48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0ibm9uZSIgY2xhc3M9ImJrIj48L3JlY3Q+PHJlY3QgIHg9JzQ3JyB5PSc0MCcgd2lkdGg9JzYnIGhlaWdodD0nMjAnIHJ4PSczJyByeT0nMycgZmlsbD0nIzdkN2Q3ZCcgdHJhbnNmb3JtPSdyb3RhdGUoMCA1MCA1MCkgdHJhbnNsYXRlKDAgLTMwKSc+ICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSdvcGFjaXR5JyBmcm9tPScxJyB0bz0nMCcgZHVyPScxcycgYmVnaW49JzBzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgzMCA1MCA1MCkgdHJhbnNsYXRlKDAgLTMwKSc+ICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSdvcGFjaXR5JyBmcm9tPScxJyB0bz0nMCcgZHVyPScxcycgYmVnaW49JzAuMDgzMzMzMzMzMzMzMzMzMzNzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSg2MCA1MCA1MCkgdHJhbnNsYXRlKDAgLTMwKSc+ICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSdvcGFjaXR5JyBmcm9tPScxJyB0bz0nMCcgZHVyPScxcycgYmVnaW49JzAuMTY2NjY2NjY2NjY2NjY2NjZzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSg5MCA1MCA1MCkgdHJhbnNsYXRlKDAgLTMwKSc+ICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSdvcGFjaXR5JyBmcm9tPScxJyB0bz0nMCcgZHVyPScxcycgYmVnaW49JzAuMjVzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgxMjAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjMzMzMzMzMzMzMzMzMzMzNzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgxNTAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjQxNjY2NjY2NjY2NjY2NjdzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgxODAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjVzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgyMTAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjU4MzMzMzMzMzMzMzMzMzRzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgyNDAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjY2NjY2NjY2NjY2NjY2NjZzJyByZXBlYXRDb3VudD0naW5kZWZpbml0ZScvPjwvcmVjdD48cmVjdCAgeD0nNDcnIHk9JzQwJyB3aWR0aD0nNicgaGVpZ2h0PScyMCcgcng9JzMnIHJ5PSczJyBmaWxsPScjN2Q3ZDdkJyB0cmFuc2Zvcm09J3JvdGF0ZSgyNzAgNTAgNTApIHRyYW5zbGF0ZSgwIC0zMCknPiAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0nb3BhY2l0eScgZnJvbT0nMScgdG89JzAnIGR1cj0nMXMnIGJlZ2luPScwLjc1cycgcmVwZWF0Q291bnQ9J2luZGVmaW5pdGUnLz48L3JlY3Q+PHJlY3QgIHg9JzQ3JyB5PSc0MCcgd2lkdGg9JzYnIGhlaWdodD0nMjAnIHJ4PSczJyByeT0nMycgZmlsbD0nIzdkN2Q3ZCcgdHJhbnNmb3JtPSdyb3RhdGUoMzAwIDUwIDUwKSB0cmFuc2xhdGUoMCAtMzApJz4gIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9J29wYWNpdHknIGZyb209JzEnIHRvPScwJyBkdXI9JzFzJyBiZWdpbj0nMC44MzMzMzMzMzMzMzMzMzM0cycgcmVwZWF0Q291bnQ9J2luZGVmaW5pdGUnLz48L3JlY3Q+PHJlY3QgIHg9JzQ3JyB5PSc0MCcgd2lkdGg9JzYnIGhlaWdodD0nMjAnIHJ4PSczJyByeT0nMycgZmlsbD0nIzdkN2Q3ZCcgdHJhbnNmb3JtPSdyb3RhdGUoMzMwIDUwIDUwKSB0cmFuc2xhdGUoMCAtMzApJz4gIDxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9J29wYWNpdHknIGZyb209JzEnIHRvPScwJyBkdXI9JzFzJyBiZWdpbj0nMC45MTY2NjY2NjY2NjY2NjY2cycgcmVwZWF0Q291bnQ9J2luZGVmaW5pdGUnLz48L3JlY3Q+PC9zdmc+"
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqCAYAAADFw8lbAAACIUlEQVRYR+2X8VXbMBDGv5ugMEHFBMAETTdgA6wJCBOQTkA6gegG3QCYALqBugGd4PrOuRDjSJbsCGzes/9MzrqfvtN9JxM+yUOfhBMzaOlKzYrOipZW4ND1jOMjEG7A+OstrSd5Ro3jCoRbAEdgXE8S1Di+A+HytSKM797Sw6QU3YMU2qmBBiGnBhqF3IBab+lu9NJr47ioSzB+eEurUUGN4zMQ7uvujj1jg6pPCuRZp+cyfnpLy9EUNY7XIFwlBwPj0VtajAJqHC+05ElOMH55S9VYoM8gnCZK/g9A5S39lrjioKKWTJIYhHG8qmd418N4BHDhLb1sw4qBageLzRgwTppJtsmMYwPCU6LL61K391EE1Dheqkobm1FLaSczjh9A+NZhRbW5h/4/CFQVEhUXrcVffEXHzd+SDaQTKLaJwaB7KrYztBIbx/EGSkAOaiY1alHxIuEt3ld0IjGdYzIDchCoJjYApHt398YQtUIYxx6Er3shOnXSZnqgPdVnFJCLbqxBvNx+guauRp4DOVjRQDcvVeEvgcTihW8vHYw/3lL3jG8tNLiZArCSWOwnBLsLZ8jEMSGf7VK3GKie3TSsflrklrz4ZGpMnzhsZBDkQBdVtAErn7tvb+0DzmVzA+8CGvROxrm39JyjXvERmkqq0+s2NvtT73+Ioo1jsBbr6tvl7U28W+n7qJUTO4PmqNQnZla0j1o5sbOiOSr1ifkPfFnUK5jHM9IAAAAASUVORK5CYII="
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /* globals __VUE_SSR_CONTEXT__ */
@@ -674,7 +706,7 @@ module.exports = function normalizeComponent (
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -693,7 +725,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(20)
+var listToStyles = __webpack_require__(22)
 
 /*
 type StyleObject = {
@@ -895,19 +927,19 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(19)
+  __webpack_require__(21)
 }
-var Component = __webpack_require__(6)(
+var Component = __webpack_require__(7)(
   /* script */
-  __webpack_require__(10),
+  __webpack_require__(11),
   /* template */
-  __webpack_require__(17),
+  __webpack_require__(19),
   /* styles */
   injectStyle,
   /* scopeId */
@@ -939,19 +971,19 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(18)
+  __webpack_require__(20)
 }
-var Component = __webpack_require__(6)(
+var Component = __webpack_require__(7)(
   /* script */
-  __webpack_require__(11),
+  __webpack_require__(12),
   /* template */
-  __webpack_require__(16),
+  __webpack_require__(18),
   /* styles */
   injectStyle,
   /* scopeId */
@@ -983,166 +1015,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__uploader__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__func__);
-
-
-/**
- *  
- *  vue的图片上传组件
- * 
- */
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  props: {
-    accept: {
-      default: 'jpg,png,gif,bmp,jpeg'
-    },
-    fileAccept: {
-      default: 'image/jpg,image/jpeg,image/png,image/gif'
-    },
-    show: {
-      default: false,
-      type: Boolean
-    },
-    url: {
-      type: String,
-      required: true
-    },
-    showProgress: {
-      default: false,
-      type: Boolean
-    },
-    zIndex: {
-      default: 999,
-      type: Number
-    },
-    uploadConfig: {
-      timeout: 20
-    }
-  },
-  data() {
-    return {
-      files: [],
-      uploadSuccessNum: 0,
-      boxWidth: 0,
-      uploadFinish: true,
-      showPanelMask: false
-    };
-  },
-  created() {
-    var self = this;
-    var uploader = new __WEBPACK_IMPORTED_MODULE_0__uploader___default.a(Object.assign({}, {
-      uploadUrl: self.url,
-      accept: self.accept,
-      showProgress: self.showProgress
-    }, self.uploadConfig));
-    self._uploader = uploader;
-    uploader.on('finish', function (success) {
-      self.files = self.files.concat();
-      self.uploadFinish = true;
-    });
-    uploader.on('progress', file => {
-      // let newFile=Object.assign({},file)
-      self.files.splice(file.index, 1, file);
-    });
-  },
-
-  watch: {
-    show(newVal) {
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])('show:' + newVal);
-      // 当重新打开的时候
-      if (newVal) {
-        this.files = this._uploader.getFiles();
-      }
-    },
-    files(newVal) {
-      let num = 0;
-      newVal.forEach(item => {
-        if (item.returnJson && item.returnJson.success) {
-          num++;
-        }
-      });
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])('files update');
-      this.uploadSuccessNum = num;
-    }
-  },
-
-  methods: {
-    selectFile: function (e) {
-      var files = e.target.files;
-      var self = this;
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        self._uploader.addFile(file);
-      }
-      // 避免vue不更新
-      self.files = self._uploader.getFiles();
-    },
-    up: function () {
-      // 没有需要选择的图片
-      if (this.files.length - this.uploadSuccessNum > 0) {
-        if (this.uploadFinish) {
-          this.uploadFinish = false;
-          this._uploader.upload();
-        }
-      } else {
-        alert('请选择图片');
-      }
-    },
-    mask() {
-      // this.showPanelMask = true
-    },
-    del: function (file) {
-      this._uploader.removeFile(file);
-      this.files = this._uploader.getFiles();
-    },
-    addFile() {
-      this.$refs.fileInput.value = null;
-      this.$refs.fileInput.click();
-    },
-    close(cancel) {
-      const self = this;
-      var files = [];
-      if (!cancel) {
-        self.files.forEach(item => {
-          if (item.returnJson && item.returnJson.success) {
-            files.push(item.returnJson);
-          }
-        });
-      }
-      self.$emit('finish', files);
-      self.files = [];
-      // 上传状态
-      self.uploadFinish = true;
-      self.uploadSuccessNum = 0;
-      self._uploader.clear();
-    },
-    percentStyle(file) {
-      return {
-        width: file.percent + '%'
-      };
-    }
-  }
-});
-
-/***/ }),
 /* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__uploader__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__func__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__props__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__props___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__props__);
+
 
 
 /**
@@ -1152,40 +1036,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  */
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: {
-    accept: {
-      default: 'jpg,png,gif,bmp,jpeg'
-    },
-    fileAccept: {
-      default: 'image/jpg,image/jpeg,image/png,image/gif'
-    },
-    show: {
-      default: false,
-      type: Boolean
-    },
-    url: {
-      type: String,
-      required: true
-    },
-    showProgress: {
-      default: false,
-      type: Boolean
-    },
-    zIndex: {
-      default: 999,
-      type: Number
-    },
-    uploadConfig: {
-      timeout: 20
-    }
-  },
+  props: __WEBPACK_IMPORTED_MODULE_2__props___default.a,
   data() {
     return {
       files: [],
       uploadSuccessNum: 0,
       boxWidth: 0,
       uploadFinish: true,
-      showPanelMask: false
+      showPanelMask: false,
+      thumb: true
     };
   },
   created() {
@@ -1193,7 +1052,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     var uploader = new __WEBPACK_IMPORTED_MODULE_0__uploader___default.a(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
-      showProgress: self.showProgress
+      showProgress: self.showProgress,
+      thumb: true,
+      onAcceptError: function (e) {
+        alert(e.ext + '类型文件不符合要求');
+      }
     }, self.uploadConfig));
     self._uploader = uploader;
     uploader.on('finish', function (success) {
@@ -1221,7 +1084,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           num++;
         }
       });
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])('files update');
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])(newVal);
       this.uploadSuccessNum = num;
     }
   },
@@ -1286,6 +1149,148 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 /* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__uploader___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__uploader__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__func___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__func__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__props__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__props___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__props__);
+
+
+
+
+/**
+ *  
+ *  vue的图片上传组件
+ * 
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: Object.assign({}, __WEBPACK_IMPORTED_MODULE_2__props___default.a, {
+    accept: {
+      type: Array,
+      default: function () {
+        return ['flv', 'mkv', 'avi', 'rm', 'rmvb', 'mpeg', 'mpg', 'ogg', 'ogv', 'mov', 'wmv', 'mp4', 'webm', 'mp3', 'wav'];
+      }
+    },
+    fileAccept: {
+      default: '*'
+    }
+  }),
+  data() {
+    return {
+      files: [],
+      uploadSuccessNum: 0,
+      boxWidth: 0,
+      uploadFinish: true,
+      showPanelMask: false
+    };
+  },
+  created() {
+    var self = this;
+    var uploader = new __WEBPACK_IMPORTED_MODULE_0__uploader___default.a(Object.assign({}, {
+      uploadUrl: self.url,
+      accept: self.accept,
+      showProgress: self.showProgress,
+      onAcceptError: function (e) {
+        alert(e.ext + '类型文件不符合要求');
+      }
+    }, self.uploadConfig));
+    self._uploader = uploader;
+    uploader.on('finish', function (success) {
+      self.files = self.files.concat();
+      self.uploadFinish = true;
+    });
+    uploader.on('progress', file => {
+      // let newFile=Object.assign({},file)
+      self.files.splice(file.index, 1, file);
+    });
+  },
+
+  watch: {
+    show(newVal) {
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])('show:' + newVal);
+      // 当重新打开的时候
+      if (newVal) {
+        this.files = this._uploader.getFiles();
+      }
+    },
+    files(newVal) {
+      let num = 0;
+      newVal.forEach(item => {
+        if (item.returnJson && item.returnJson.success) {
+          num++;
+        }
+      });
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__func__["log"])('files update');
+      this.uploadSuccessNum = num;
+    }
+  },
+
+  methods: {
+    selectFile: function (e) {
+      var files = e.target.files;
+      var self = this;
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        self._uploader.addFile(file);
+      }
+      // 避免vue不更新
+      self.files = self._uploader.getFiles();
+    },
+    up: function () {
+      // 没有需要选择的图片
+      if (this.files.length - this.uploadSuccessNum > 0) {
+        if (this.uploadFinish) {
+          this.uploadFinish = false;
+          this._uploader.upload();
+        }
+      } else {
+        alert('请选择图片');
+      }
+    },
+    mask() {
+      // this.showPanelMask = true
+    },
+    del: function (file) {
+      this._uploader.removeFile(file);
+      this.files = this._uploader.getFiles();
+    },
+    addFile() {
+      this.$refs.fileInput.value = null;
+      this.$refs.fileInput.click();
+    },
+    close(cancel) {
+      const self = this;
+      var files = [];
+      if (!cancel) {
+        self.files.forEach(item => {
+          if (item.returnJson && item.returnJson.success) {
+            files.push(item.returnJson);
+          }
+        });
+      }
+      self.$emit('finish', files);
+      self.files = [];
+      // 上传状态
+      self.uploadFinish = true;
+      self.uploadSuccessNum = 0;
+      self._uploader.clear();
+    },
+    percentStyle(file) {
+      return {
+        width: file.percent + '%'
+      };
+    }
+  }
+});
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1338,7 +1343,7 @@ var Ctrl = function () {
 exports.default = Ctrl;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1347,26 +1352,26 @@ exports.default = Ctrl;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VueVideoUploader = exports.VueImageUploader = undefined;
 
-var _uploader = __webpack_require__(8);
+var _uploader = __webpack_require__(9);
 
 var _uploader2 = _interopRequireDefault(_uploader);
 
-var _uploader3 = __webpack_require__(9);
+var _uploader3 = __webpack_require__(10);
 
 var _uploader4 = _interopRequireDefault(_uploader3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.VueImageUploader = _uploader2.default;
-exports.VueVideoUploader = _uploader4.default;
+exports.default = {
+  VueImageUploader: _uploader2.default, VueVideoUploader: _uploader4.default
+};
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(3)(true);
+exports = module.exports = __webpack_require__(4)(true);
 // imports
 
 
@@ -1377,10 +1382,10 @@ exports.push([module.i, "\n.btn[data-v-3a211969] {\n  color: #fff;\n  background
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(3)(true);
+exports = module.exports = __webpack_require__(4)(true);
 // imports
 
 
@@ -1391,7 +1396,13 @@ exports.push([module.i, "\n.btn[data-v-dc035eee] {\n  color: #fff;\n  background
 
 
 /***/ }),
-/* 16 */
+/* 17 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,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"
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -1410,7 +1421,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "panel"
   }, [(_vm.showPanelMask) ? _c('div', {
     staticClass: "panel-mask"
-  }) : _vm._e(), _vm._v(" "), _c('h2', [_vm._v("选择图片\n                "), _c('span', {
+  }) : _vm._e(), _vm._v(" "), _c('h2', [_vm._v("选择视频\n                "), _c('span', {
     staticClass: "close",
     on: {
       "click": function($event) {
@@ -1435,7 +1446,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     on: {
       "click": _vm.addFile
     }
-  }, [_vm._v("请添加图片")])])])] : _vm._e(), _vm._v(" "), _vm._l((_vm.files), function(file) {
+  }, [_vm._v("请添加视频")])])])] : _vm._e(), _vm._v(" "), _vm._l((_vm.files), function(file) {
     return _c('div', {
       staticClass: "image-item"
     }, [_c('div', {
@@ -1452,16 +1463,22 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v("删除")])], 2), _vm._v(" "), (file.status === 1) ? [_c('img', {
       staticClass: "loader",
       attrs: {
-        "src": __webpack_require__(4),
+        "src": __webpack_require__(5),
         "alt": ""
       }
     })] : _vm._e(), _vm._v(" "), _c('img', {
       staticClass: "cover",
+      staticStyle: {
+        "height": "64px",
+        "margin-top": "36px"
+      },
       attrs: {
-        "src": file.thumb,
+        "src": __webpack_require__(17),
         "alt": ""
       }
-    }), _vm._v(" "), (file.percent && _vm.showProgress) ? _c('div', {
+    }), _vm._v(" "), _c('div', {
+      staticClass: "name"
+    }, [_vm._v(_vm._s(file.name))]), _vm._v(" "), (file.percent && _vm.showProgress) ? _c('div', {
       staticClass: "percent"
     }, [_c('div', {
       staticClass: "percent-inner",
@@ -1469,7 +1486,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     })]) : _vm._e(), _vm._v(" "), (file.status === 2) ? _c('img', {
       staticClass: "ok",
       attrs: {
-        "src": __webpack_require__(5),
+        "src": __webpack_require__(6),
         "alt": ""
       }
     }) : _vm._e()], 2)
@@ -1488,7 +1505,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })]) : _vm._e()], 2), _vm._v(" "), _c('div', {
     staticClass: "bottom"
-  }, [_vm._v("\n                选择" + _vm._s(_vm.files.length) + "个图片，需要上传 " + _vm._s(_vm.files.length - _vm.uploadSuccessNum) + "个\n                "), (_vm.uploadFinish) ? [_c('span', {
+  }, [_vm._v("\n                选择" + _vm._s(_vm.files.length) + "个视频，需要上传 " + _vm._s(_vm.files.length - _vm.uploadSuccessNum) + "个\n                "), (_vm.uploadFinish) ? [_c('span', {
     staticClass: "btn",
     staticStyle: {
       "margin-left": "15px"
@@ -1538,7 +1555,7 @@ if (false) {
 }
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -1599,7 +1616,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v("删除")])], 2), _vm._v(" "), (file.status === 1) ? [_c('img', {
       staticClass: "loader",
       attrs: {
-        "src": __webpack_require__(4),
+        "src": __webpack_require__(5),
         "alt": ""
       }
     })] : _vm._e(), _vm._v(" "), _c('img', {
@@ -1616,7 +1633,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     })]) : _vm._e(), _vm._v(" "), (file.status === 2) ? _c('img', {
       staticClass: "ok",
       attrs: {
-        "src": __webpack_require__(5),
+        "src": __webpack_require__(6),
         "alt": ""
       }
     }) : _vm._e()], 2)
@@ -1685,17 +1702,17 @@ if (false) {
 }
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(14);
+var content = __webpack_require__(15);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(7)("76afde56", content, false);
+var update = __webpack_require__(8)("76afde56", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -1711,17 +1728,17 @@ if(false) {
 }
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(15);
+var content = __webpack_require__(16);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(7)("5738d860", content, false);
+var update = __webpack_require__(8)("5738d860", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -1737,7 +1754,7 @@ if(false) {
 }
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports) {
 
 /**
