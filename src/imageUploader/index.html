@@ -8,7 +8,7 @@
             <div ref="frame" class="image-list">
                 <template v-if="files.length===0">
                     <div class="place-holder">
-                        <img @click="addFile" src="./images/add.png" alt="">
+                        <img @click="addFile" src="../images/add.png" alt="">
                         <div>
                             <span @click="addFile" class="btn">请添加图片</span>
                         </div>
@@ -25,17 +25,17 @@
                         <span style="float:right" @click="del(file)">删除</span>
                     </div>
                     <template v-if="file.status===1">
-                        <img class="loader" src="./images/loader.svg" alt="">
+                        <img class="loader" src="../images/loader.svg" alt="">
                     </template>
                     <img :src="file.thumb" alt="" class="cover">
                     
                     <div class="percent" v-if="file.percent && showProgress">
                         <div class="percent-inner" :style="percentStyle(file)"></div>
                     </div>
-                    <img src="./images/ok.png"  v-if="file.status===2" alt="" class="ok">
+                    <img src="../images/ok.png"  v-if="file.status===2" alt="" class="ok">
                 </div>
                 <div class="image-item" @click="addFile" v-if="files.length>0">
-                    <img style="margin-top: 25px;" src="./images/add.png" alt="添加视频">
+                    <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
                 </div>
             </div>
             <div class="bottom">

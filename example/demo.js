@@ -5,7 +5,7 @@ var app = new Vue({
     files: []
   },
   components: {
-    'image-uploader': VueImageUploader
+    'image-uploader': VueUploader.VueImageUploader
   },
   created: function(){
 

@@ -1,8 +1,8 @@
 {
-  "name": "vue-image-uploader",
+  "name": "vue-jump-uploader",
   "version": "0.2.0",
   "description": "vue image upload component",
-  "main": "./dist/vueImageUploader.js",
+  "main": "./dist/vueUploader.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch ",
     "build": "./node_modules/.bin/webpack",
@@ -40,8 +40,5 @@
     "vue-loader": "^12.0.2",
     "vue-template-compiler": "^2.5.2",
     "webpack": "^2.4.1"
-  },
-  "dependencies": {
-    "jump-uploader": "git+https://github.com/jumplee/uploader.git"
   }
 }

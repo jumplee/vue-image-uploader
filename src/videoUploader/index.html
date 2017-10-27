@@ -1,0 +1,58 @@
+<div>
+    <div class="mask" :style="{zIndex:zIndex}" v-show="show">
+        <div class="panel">
+            <div class="panel-mask" v-if="showPanelMask"></div>
+            <h2>选择图片
+                <span class="close" @click="close(true)">×</span>
+            </h2>
+            <div ref="frame" class="image-list">
+                <template v-if="files.length===0">
+                    <div class="place-holder">
+                        <img @click="addFile" src="../images/add.png" alt="">
+                        <div>
+                            <span @click="addFile" class="btn">请添加图片</span>
+                        </div>
+                    </div>
+                </template>
+                <div class="image-item" v-for="file in files">
+                    <div class="title">
+                        <template v-if="file.status===2">
+                            <span>上传成功</span>
+                        </template>
+                        <template v-if="file.status===3">
+                            <span>上传失败</span>
+                        </template>
+                        <span style="float:right" @click="del(file)">删除</span>
+                    </div>
+                    <template v-if="file.status===1">
+                        <img class="loader" src="../images/loader.svg" alt="">
+                    </template>
+                    <img :src="file.thumb" alt="" class="cover">
+                    
+                    <div class="percent" v-if="file.percent && showProgress">
+                        <div class="percent-inner" :style="percentStyle(file)"></div>
+                    </div>
+                    <img src="../images/ok.png"  v-if="file.status===2" alt="" class="ok">
+                </div>
+                <div class="image-item" @click="addFile" v-if="files.length>0">
+                    <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
+                </div>
+            </div>
+            <div class="bottom">
+                选择{{files.length}}个图片，需要上传 {{files.length-uploadSuccessNum}}个
+                <template v-if="uploadFinish">
+                    <span class="btn" style="margin-left:15px" @click="up()">
+                        上传
+                    </span>
+                </template>
+                <template v-if="!uploadFinish">
+                    <span class="btn btn-disable" style="margin-left:15px" @click="up()">
+                        上传中...
+                    </span>
+                </template>
+                <span class="btn save-btn" @click="close()">确 认</span>
+                <input ref="fileInput" style="display:none" type="file" @change="selectFile" multiple>
+            </div>
+        </div>
+    </div>
+</div>

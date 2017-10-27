@@ -1,5 +1,5 @@
-import Uploader from './uploader'
-import { where, log } from './func'
+import Uploader from '../uploader'
+import { where, log } from '../func'
 /**
  *  
  *  vue的图片上传组件
