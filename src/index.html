@@ -24,14 +24,14 @@
                         </template>
                         <span style="float:right" @click="del(file)">删除</span>
                     </div>
-                    <template v-if="file.status===1">
+                    <template v-if="file.status===1 && !showProgress">
                         <img class="loader" src="./images/loader.svg" alt="">
                     </template>
                     <img :src="file.thumb" alt="" class="cover">
                     
-                    <!-- <div class="percent">
+                    <div class="percent" v-if="file.percent && showProgress">
                         <div class="percent-inner" :style="percentStyle(file)"></div>
-                    </div> -->
+                    </div>
                     <img src="./images/ok.png"  v-if="file.status===2" alt="" class="ok">
                 </div>
                 <div class="image-item" @click="addFile" v-if="files.length>0">

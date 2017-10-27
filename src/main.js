@@ -1,16 +1,11 @@
 import Uploader from './uploader'
+import { where, log } from './func'
 /**
  *  
  *  vue的图片上传组件
  * 
  */
-const isDebug = true
 
-function log(info){
-  if (isDebug){
-    console.log(info)
-  }
-}
 export default {
   props: {
     accept: {
@@ -34,6 +29,9 @@ export default {
     zIndex: {
       default: 999,
       type: Number
+    },
+    uploadConfig: {
+      timeout: 20
     }
   },
   data(){
@@ -57,11 +55,15 @@ export default {
       self.files = self.files.concat()
       self.uploadFinish = true
     })
+    uploader.on('progress', (file) => {
+      // let newFile=Object.assign({},file)
+      self.files.splice(file.index, 1, file)
+    })
   },
 
   watch: {
     show(newVal){
-      console.log('show:' + newVal)
+      log('show:' + newVal)
       // 当重新打开的时候
       if (newVal){
         this.files = this._uploader.getFiles()
@@ -74,7 +76,7 @@ export default {
           num++
         }
       })
-      console.log('files update')
+      log('files update')
       this.uploadSuccessNum = num
     }
   },

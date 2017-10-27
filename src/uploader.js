@@ -1,67 +1,13 @@
 import Ctrl from './ctrl'
+import { where, uuid, UPLOAD_STATUS, log, createObjectURL } from './func'
+
 /**
  * @version 0.1.1 上传组件
  */
-const isDebug = true
-
-// 文件上传状态
-const UPLOAD_STATUS = {
-  WAIT: 0,
-  UPLOAD_ING: 1,
-  SUCESS: 2,
-  FAILED: 3
-}
-
-function log(info){
-  if (isDebug){
-    console.log(info)
-  }
-}
-let counter = 0
-function uuid(){
-  var uuid = 'file-' + counter
-  counter++
-  return uuid
-}
-
-function query(key, value, list){
-  for (var i = 0; i < list.length; i++){
-    if (typeof value === 'function'){
-      if (value(list[i])){
-        return list[i]
-      }
-    } else {
-      if (list[i][key] === value){
-        return list[i]
-      }
-    }
-  }
-}
-
-function where(key, value, list){
-  var arr = []
-  for (var i = 0; i < list.length; i++){
-    if (typeof value === 'function'){
-      if (value(list[i])){
-        arr.push(list[i])
-      }
-    } else {
-      if (list[i][key] === value){
-        arr.push(list[i])
-      }
-    }
-  }
-  return arr
-}
-
-function createObjectURL(){
-  return window.URL.createObjectURL.apply(this, arguments)
-}
 class Uploader extends Ctrl{
   constructor(options){
     super()
     var self = this
-    self.xhr = new XMLHttpRequest()
     self._files = []
     self._queue = []
     self.queueIndex = 0
@@ -74,6 +20,7 @@ class Uploader extends Ctrl{
       // 向后台传递的参数
       param: {},
       fileParamName: 'file',
+      timeout: 30,
       // 只接受类型或者正则
       /**
        * @example
@@ -111,17 +58,23 @@ class Uploader extends Ctrl{
       log('正在上传，请等待')
       return false
     }
-
+    const files = self._files
+    const queue = []
     // 上传的时候将上传失败的文件设置为等待
-    self._files.forEach((item) => {
+    files.forEach((item) => {
       if (item.status === UPLOAD_STATUS.FAILED){
         item.status = UPLOAD_STATUS.WAIT
       }
     })
-    self._queue = where('status', (file) => {
-      return file.status === UPLOAD_STATUS.WAIT
-    }, self._files)
-    var queue = self._queue
+
+    for(let i = 0; i < files.length; i++){
+      const file = files[i]
+      if(file.status === UPLOAD_STATUS.WAIT){
+        file.index = i
+        queue.push(file)
+      }
+    }
+    self._queue = queue
     var len = Math.min(options.uploadFileMax, queue.length)
     for (var i = 0; i < len; i++){
       self._upload()
@@ -138,7 +91,7 @@ class Uploader extends Ctrl{
     var options = self.options
     const xhr = new XMLHttpRequest()
     // 20秒超时
-    xhr.timeout = 10 * 1000
+    xhr.timeout = options.timeout * 1000
     const formData = new FormData()
     formData.append(options.fileParamName, file.source)
     for (var key in options.param){
@@ -177,8 +130,8 @@ class Uploader extends Ctrl{
     xhr.ontimeout = onNetError
     function updateProgress(event){
       var complete = (event.loaded / event.total * 100 | 0)
-      console.log(complete)
       file.percent = complete
+      self.trigger('progress', file)
     }
     if(options.showProgress){
       xhr.upload.onprogress = updateProgress
