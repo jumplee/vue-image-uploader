@@ -45,11 +45,11 @@ export default {
   },
   created(){
     var self = this
-    var uploader = new Uploader({
+    var uploader = new Uploader(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
       showProgress: self.showProgress
-    })
+    }, self.uploadConfig))
     self._uploader = uploader
     uploader.on('finish', function(success){
       self.files = self.files.concat()

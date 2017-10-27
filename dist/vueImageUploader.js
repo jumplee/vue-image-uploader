@@ -84,7 +84,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 // 文件上传状态
-var isDebug = true;
+var isDebug = false;
 
 var counter = 0;
 
@@ -201,11 +201,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   created() {
     var self = this;
-    var uploader = new __WEBPACK_IMPORTED_MODULE_0__uploader___default.a({
+    var uploader = new __WEBPACK_IMPORTED_MODULE_0__uploader___default.a(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
       showProgress: self.showProgress
-    });
+    }, self.uploadConfig));
     self._uploader = uploader;
     uploader.on('finish', function (success) {
       self.files = self.files.concat();
@@ -437,7 +437,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           _vm.del(file)
         }
       }
-    }, [_vm._v("删除")])], 2), _vm._v(" "), (file.status === 1 && !_vm.showProgress) ? [_c('img', {
+    }, [_vm._v("删除")])], 2), _vm._v(" "), (file.status === 1) ? [_c('img', {
       staticClass: "loader",
       attrs: {
         "src": __webpack_require__(10),

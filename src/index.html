@@ -24,7 +24,7 @@
                         </template>
                         <span style="float:right" @click="del(file)">删除</span>
                     </div>
-                    <template v-if="file.status===1 && !showProgress">
+                    <template v-if="file.status===1">
                         <img class="loader" src="./images/loader.svg" alt="">
                     </template>
                     <img :src="file.thumb" alt="" class="cover">
