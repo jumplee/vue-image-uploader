@@ -15,7 +15,6 @@ var app = new Vue({
       this.showUploader = true
     },
     onFinish(files){
-      debugger
       this.files = files
       this.showUploader = false
     }

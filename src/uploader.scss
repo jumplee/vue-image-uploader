@@ -84,6 +84,7 @@ $main-color:#20a0ff;
         padding: 5px;
         box-sizing: border-box;
         cursor: pointer;
+        user-select: none;
     }
     .cover {
         height: 100%;
