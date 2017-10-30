@@ -2,9 +2,9 @@
     <div class="mask" :style="{zIndex:zIndex}" v-show="show">
         <div class="panel">
             <div class="panel-mask" v-if="showPanelMask"></div>
-            <h2>选择图片
+            <h3>选择图片
                 <span class="close" @click="close(true)">×</span>
-            </h2>
+            </h3>
             <div ref="frame" class="image-list">
                 <template v-if="files.length===0">
                     <div class="place-holder">
@@ -51,7 +51,7 @@
                     </span>
                 </template>
                 <span class="btn save-btn" @click="close()">确 认</span>
-                <input ref="fileInput" style="display:none" type="file" @change="selectFile" multiple>
+                <input ref="fileInput" :accept="fileAccept" style="display:none" type="file" @change="selectFile" multiple>
             </div>
         </div>
     </div>

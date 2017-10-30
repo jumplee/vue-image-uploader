@@ -2,9 +2,9 @@
     <div class="mask" :style="{zIndex:zIndex}" v-show="show">
         <div class="panel">
             <div class="panel-mask" v-if="showPanelMask"></div>
-            <h2>选择视频
+            <h3>选择视频
                 <span class="close" @click="close(true)">×</span>
-            </h2>
+            </h3>
             <div ref="frame" class="image-list">
                 <template v-if="files.length===0">
                     <div class="place-holder">

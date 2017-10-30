@@ -7,8 +7,8 @@ var app = new Vue({
     videos: []
   },
   components: {
-    'image-uploader': VueUploader.VueImageUploader,
-    'video-uploader': VueUploader.VueVideoUploader
+    'image-uploader': VueUploader.default.VueImageUploader,
+    'video-uploader': VueUploader.default.VueVideoUploader
   },
   created: function(){
 
