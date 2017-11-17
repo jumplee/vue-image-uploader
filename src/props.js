@@ -25,6 +25,9 @@ export default{
     type: Number
   },
   uploadConfig: {
-    timeout: 20
+    default:{
+      timeout: 20
+    },
+    type:Object
   }
 }

@@ -20,7 +20,7 @@ class Uploader extends Ctrl{
       // 向后台传递的参数
       param: {},
       fileParamName: 'file',
-      timeout: 30,
+      timeout: 60*5,
       // 只接受类型或者正则
       /**
        * @example
@@ -83,6 +83,7 @@ class Uploader extends Ctrl{
     var options = self.options
     const xhr = new XMLHttpRequest()
     // 20秒超时
+    debugger
     xhr.timeout = options.timeout * 1000
     const formData = new FormData()
     formData.append(options.fileParamName, file.source)
@@ -103,13 +104,13 @@ class Uploader extends Ctrl{
       // 避免回调函数中报错触发catch
       try {
         json = JSON.parse(xhr.responseText)
+        if (json.success){
+          self.onSuccess(file, json)
+        } else {
+          self.onFail(file)
+        }
       } catch (e){
-        self.onFail(file)
-        json.success = false
-      }
-      if (json.success){
-        self.onSuccess(file, json)
-      } else {
+        // 返回的不是json格式
         self.onFail(file)
       }
     }

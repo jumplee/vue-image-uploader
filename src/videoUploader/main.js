@@ -1,26 +1,33 @@
 import Uploader from '../uploader'
 import { where, log } from '../func'
 import props from '../props'
-
+const newProps=Object.assign({}, props, {
+  accept: {
+    type: Array,
+    default: function(){
+      return ['flv', 'mkv', 'avi', 'rm', 'rmvb', 'mpeg', 'mpg',
+        'ogg', 'ogv', 'mov', 'wmv', 'mp4', 'webm', 'mp3', 'wav']
+    }
+  },
+  fileAccept: {
+    default: '*'
+  },
+  uploadConfig: {
+    default:{
+      // 三十分钟等待
+      timeout: 30 * 60
+    },
+    type:Object
+  }
+})
 /**
  *  
- *  vue的图片上传组件
+ *  vue的视频上传组件
  * 
  */
 
 export default {
-  props: Object.assign({}, props, {
-    accept: {
-      type: Array,
-      default: function(){
-        return ['flv', 'mkv', 'avi', 'rm', 'rmvb', 'mpeg', 'mpg',
-          'ogg', 'ogv', 'mov', 'wmv', 'mp4', 'webm', 'mp3', 'wav']
-      }
-    },
-    fileAccept: {
-      default: '*'
-    }
-  }),
+  props: newProps,
   data(){
     return {
       files: [],
