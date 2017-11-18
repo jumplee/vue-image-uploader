@@ -82,8 +82,7 @@ class Uploader extends Ctrl{
     }
     var options = self.options
     const xhr = new XMLHttpRequest()
-    // 20秒超时
-    debugger
+    //超时
     xhr.timeout = options.timeout * 1000
     const formData = new FormData()
     formData.append(options.fileParamName, file.source)

@@ -304,8 +304,7 @@ var Uploader = function (_Ctrl) {
       }
       var options = self.options;
       var xhr = new XMLHttpRequest();
-      // 20秒超时
-      debugger;
+      //超时
       xhr.timeout = options.timeout * 1000;
       var formData = new FormData();
       formData.append(options.fileParamName, file.source);
