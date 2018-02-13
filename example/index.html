@@ -13,14 +13,17 @@
     <div id="app">
         <button @click="addPicture()">添加图片</button>
         <button @click="addVideo()">添加视频</button>
+        <div style="background:lightblue;height:1000px;">1234 </div> 
         <image-uploader url="/file/uploading" :show-progress="true" @finish="onFinish" :show="showUploader"></image-uploader>
-        <video-uploader url="/file/uploading" :show-progress="true" @finish="onFinish2" :show="showVideo"></image-uploader>
+        <video-uploader :upload-config="uploadConfig" url="/file/uploading" :show-progress="true" @finish="onFinish2" :show="showVideo"></image-uploader>
         <div class="item" v-for="file in files">
             <img :src="file.fileUrl" alt="">
         </div>
         <div class="item" v-for="v in videos">
             <video width="100px" :src="v.fileUrl" alt="" controls></video>
         </div>
+  
+
     </div>
     <script src="../dist/vueUploader.js"></script>
     <script src="./demo.js"></script>

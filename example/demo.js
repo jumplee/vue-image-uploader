@@ -4,7 +4,10 @@ var app = new Vue({
     showUploader: false,
     showVideo: false,
     files: [],
-    videos: []
+    videos: [],
+    uploadConfig: {
+      timeout: 0
+    }
   },
   components: {
     'image-uploader': VueUploader.default.VueImageUploader,

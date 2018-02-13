@@ -44,8 +44,9 @@ export default {
   watch: {
     show(newVal){
       log('show:' + newVal)
-      // 当重新打开的时候
       if (newVal){
+        //禁止body滚动
+        document.body.style.overflow='hidden'
         this.files = this._uploader.getFiles()
       }
     },
@@ -104,6 +105,8 @@ export default {
           }
         })
       }
+      //不再禁止滚动
+      document.body.style.overflow=''
       self.$emit('finish', files)
       self.files = []
       // 上传状态

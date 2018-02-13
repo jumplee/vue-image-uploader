@@ -1,7 +1,7 @@
 import Uploader from '../uploader'
 import { where, log } from '../func'
 import props from '../props'
-const newProps=Object.assign({}, props, {
+const newProps = Object.assign({}, props, {
   accept: {
     type: Array,
     default: function(){
@@ -13,11 +13,13 @@ const newProps=Object.assign({}, props, {
     default: '*'
   },
   uploadConfig: {
-    default:{
-      // 三十分钟等待
-      timeout: 30 * 60
+    default: function(){
+      return{
+        // 三十分钟等待
+        timeout: 30 * 60
+      }
     },
-    type:Object
+    type: Object
   }
 })
 /**
@@ -39,6 +41,7 @@ export default {
   },
   created(){
     var self = this
+    log(self.uploadConfig)
     var uploader = new Uploader(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
@@ -60,9 +63,10 @@ export default {
 
   watch: {
     show(newVal){
-      log('show:' + newVal)
-      // 当重新打开的时候
+      // 当打开的时候
       if (newVal){
+        //禁止body滚动
+        document.body.style.overflow='hidden'
         this.files = this._uploader.getFiles()
       }
     },
@@ -114,6 +118,8 @@ export default {
     close(cancel){
       const self = this
       var files = []
+      //不再禁止滚动
+      document.body.style.overflow=''
       if (!cancel){
         self.files.forEach((item) => {
           if (item.returnJson && item.returnJson.success){
