@@ -20,7 +20,7 @@ class Uploader extends Ctrl{
       // 向后台传递的参数
       param: {},
       fileParamName: 'file',
-      timeout: 60*5,
+      timeout: 60 * 5,
       // 只接受类型或者正则
       /**
        * @example
@@ -82,7 +82,8 @@ class Uploader extends Ctrl{
     }
     var options = self.options
     const xhr = new XMLHttpRequest()
-    //超时
+    // 超时
+    console.log(options.timeout)
     xhr.timeout = options.timeout * 1000
     const formData = new FormData()
     formData.append(options.fileParamName, file.source)

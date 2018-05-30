@@ -2,3 +2,4 @@ node_modules
 server/temp/**
 server/files/**
 ./npm-debug.log
+*.log

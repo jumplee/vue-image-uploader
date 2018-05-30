@@ -1,12 +1,12 @@
 {
   "name": "vue-image-uploader",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "vue image upload component",
   "main": "./dist/vueUploader.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch ",
     "build": "./node_modules/.bin/webpack",
-    "test": "open http://localhost:3000/ && node ./server.js"
+    "test": "open http://localhost:3000/example/index.html && node ./server.js"
   },
   "repository": {
     "type": "git",
@@ -33,12 +33,12 @@
     "eslint-plugin-vuefix": "^0.2.1",
     "express": "^4.15.2",
     "multiparty": "^4.1.3",
-    "node-sass": "^4.5.2",
+    "node-sass": "^4.7.2",
     "sass-loader": "^6.0.3",
     "url-loader": "^0.5.8",
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^12.0.2",
-    "vue-template-compiler": "^2.5.2",
-    "webpack": "^2.4.1"
-  }
+    "vue-template-compiler": "^2.5.2"
+  },
+  "dependencies": {}
 }

@@ -1,5 +1,5 @@
 // webpack.config.js
-const webpack = require('webpack')
+// const webpack = require('webpack')
 var path = require('path')
 
 module.exports = {

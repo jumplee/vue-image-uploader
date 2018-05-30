@@ -13,6 +13,7 @@ module.exports = {
   log(info){
     if (isDebug){
       console.log(info)
+      console.trace()
     }
   },
   uuid(){
