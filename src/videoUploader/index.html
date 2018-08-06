@@ -1,7 +1,12 @@
 <div>
     <div class="mask" :style="{zIndex:zIndex}" v-show="show">
         <div class="panel">
-            <div class="panel-mask" v-if="showPanelMask"></div>
+            <div class="panel-mask" v-if="showPanelMask">
+                <div v-if="maskText" class="panel-dialog">
+                    <div class="panel-dialog-text">{{maskText}}</div>
+                    <div class="btn-ios" @click="closeDialog">确 定</div>
+                </div>
+            </div>
             <h3>选择视频
                 <span class="close" @click="close(true)">×</span>
             </h3>
@@ -33,7 +38,7 @@
                     <div class="percent" v-if="file.percent && showProgress">
                         <div class="percent-inner" :style="percentStyle(file)"></div>
                     </div>
-                    <img src="../images/ok.png"  v-if="file.status===2" alt="" class="ok">
+                    <img src="../images/ok.png" v-if="file.status===2" alt="" class="ok">
                 </div>
                 <div class="image-item" @click="addFile" v-if="files.length>0">
                     <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
@@ -51,7 +56,7 @@
                         上传中...
                     </span>
                 </template>
-                <span class="btn save-btn" @click="close()">确 认</span>
+                <span class="btn save-btn" @click="close()">确 定</span>
                 <input ref="fileInput" style="display:none" type="file" @change="selectFile" multiple>
             </div>
         </div>

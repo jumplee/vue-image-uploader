@@ -36,12 +36,12 @@ export default {
       uploadSuccessNum: 0,
       boxWidth: 0,
       uploadFinish: true,
+      maskText:'',
       showPanelMask: false
     }
   },
   created(){
     var self = this
-    log(self.uploadConfig)
     var uploader = new Uploader(Object.assign({}, {
       uploadUrl: self.url,
       accept: self.accept,
@@ -104,8 +104,11 @@ export default {
         alert('请选择图片')
       }
     },
-    mask(){
-      // this.showPanelMask = true
+    mask(text){
+      this.showPanelMask = true
+      if(text){
+        this.maskText=text
+      }
     },
     del: function(file){
       this._uploader.removeFile(file)
@@ -115,24 +118,37 @@ export default {
       this.$refs.fileInput.value = null
       this.$refs.fileInput.click()
     },
+    closeDialog(){
+      this.showPanelMask=false
+      this.maskText=''
+    },
     close(cancel){
-      const self = this
+      const me = this
       var files = []
-      //不再禁止滚动
-      document.body.style.overflow=''
+      var isAllFinish=true
       if (!cancel){
-        self.files.forEach((item) => {
+        me.files.forEach((item) => {
           if (item.returnJson && item.returnJson.success){
             files.push(item.returnJson)
+          }else{
+            isAllFinish=false;
+            return false
           }
         })
       }
-      self.$emit('finish', files)
-      self.files = []
+      if(!isAllFinish){
+        me.mask('有未上传文件')
+        return false
+      }
+
+      //不再禁止滚动
+      document.body.style.overflow=''
+      me.$emit('finish', files)
+      me.files = []
       // 上传状态
-      self.uploadFinish = true
-      self.uploadSuccessNum = 0
-      self._uploader.clear()
+      me.uploadFinish = true
+      me.uploadSuccessNum = 0
+      me._uploader.clear()
     },
     percentStyle(file){
       return {
