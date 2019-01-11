@@ -1,3 +1,4 @@
+import {log} from './func'
 export default {
     data() {
         return {

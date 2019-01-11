@@ -93,10 +93,16 @@ class Uploader extends Ctrl{
 
     file.status = UPLOAD_STATUS.UPLOAD_ING
     xhr.onload = function(){
+
       if (xhr.status < 200 || xhr.status >= 300){
         log(xhr.status)
         self.onFail(file)
-        // return option.onError(getError(action, option, xhr), getBody(xhr));
+        if(options.onError){
+          return option.onError(xhr)
+        }else{
+          return false
+        }
+        
       }
 
       let json = {}
@@ -117,11 +123,13 @@ class Uploader extends Ctrl{
     function onNetError(){
       self.onFail(file)
     }
+    xhr.onabort = onNetError
     // 无网络等原因导致错误
     xhr.onerror = onNetError
     // 请求超时
     xhr.ontimeout = onNetError
     function updateProgress(event){
+      console.log(event.loaded)
       var complete = (event.loaded / event.total * 100 | 0)
       file.percent = complete
       self.trigger('progress', file)
