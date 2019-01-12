@@ -1,5 +1,6 @@
 import {log} from './func'
 export default {
+
     data() {
         return {
             files: [],
@@ -13,11 +14,16 @@ export default {
     },
     watch: {
         show(newVal) {
+           
             // 当打开的时候
             if (newVal) {
                 //禁止body滚动
                 document.body.style.overflow = 'hidden'
                 this.files = this._uploader.getFiles()
+
+                document.addEventListener('keydown',this.onEsc,false)
+            }else{
+                document.removeEventListener('keydown',this.onEsc,false)
             }
         },
         files(newVal) {
@@ -33,6 +39,11 @@ export default {
     },
 
     methods: {
+        onEsc(e){
+            if(e.keyCode === 27){
+                this.close()
+            }
+        },
         selectFile: function (e) {
             var files = e.target.files
             var self = this

@@ -1,7 +1,7 @@
 import Uploader from '../uploader'
 import BaseViewCtrl from '../baseViewCtrl'
 import props from '../props'
-const newProps = Object.assign({},BaseViewCtrl, props, {
+const newProps = Object.assign({}, props, {
   accept: {
     type: Array,
     default: function(){
@@ -24,11 +24,11 @@ const newProps = Object.assign({},BaseViewCtrl, props, {
 })
 /**
  *  
- *  vue的视频上传组件
+ *  视频上传组件
  * 
  */
 
-export default {
+export default Object.assign({},BaseViewCtrl,{
   props: newProps,
   data(){
     return {
@@ -60,4 +60,5 @@ export default {
       self.files.splice(file.index, 1, file)
     })
   }
-}
+})
+

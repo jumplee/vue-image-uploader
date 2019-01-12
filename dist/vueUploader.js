@@ -1,5 +1,14 @@
-export default
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["VueUploader"] = factory();
+	else
+		root["VueUploader"] = factory();
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -157,7 +166,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const newProps = Object.assign({}, _baseViewCtrl__WEBPACK_IMPORTED_MODULE_1___default.a, _props__WEBPACK_IMPORTED_MODULE_2___default.a, {
+const newProps = Object.assign({}, _props__WEBPACK_IMPORTED_MODULE_2___default.a, {
   accept: {
     type: Array,
     default: function () {
@@ -179,11 +188,11 @@ const newProps = Object.assign({}, _baseViewCtrl__WEBPACK_IMPORTED_MODULE_1___de
 });
 /**
  *  
- *  vue的视频上传组件
+ *  视频上传组件
  * 
  */
 
-/* harmony default export */ __webpack_exports__["default"] = ({
+/* harmony default export */ __webpack_exports__["default"] = (Object.assign({}, _baseViewCtrl__WEBPACK_IMPORTED_MODULE_1___default.a, {
   props: newProps,
   data() {
     return {
@@ -215,7 +224,7 @@ const newProps = Object.assign({}, _baseViewCtrl__WEBPACK_IMPORTED_MODULE_1___de
       self.files.splice(file.index, 1, file);
     });
   }
-});
+}));
 
 /***/ }),
 
@@ -1355,11 +1364,16 @@ exports.default = {
 
     watch: {
         show: function show(newVal) {
+
             // 当打开的时候
             if (newVal) {
                 //禁止body滚动
                 document.body.style.overflow = 'hidden';
                 this.files = this._uploader.getFiles();
+
+                document.addEventListener('keydown', this.onEsc, false);
+            } else {
+                document.removeEventListener('keydown', this.onEsc, false);
             }
         },
         files: function files(newVal) {
@@ -1375,6 +1389,12 @@ exports.default = {
     },
 
     methods: {
+        onEsc: function onEsc(e) {
+            if (e.keyCode === 27) {
+                this.close();
+            }
+        },
+
         selectFile: function selectFile(e) {
             var files = e.target.files;
             var self = this;
@@ -2158,4 +2178,5 @@ if (false) {}
 /***/ })
 
 /******/ });
+});
 //# sourceMappingURL=vueUploader.js.map

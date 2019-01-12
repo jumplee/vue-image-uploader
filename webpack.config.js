@@ -8,7 +8,8 @@ module.exports = {
     filename: 'vueUploader.js',
     path: path.resolve(__dirname, 'dist'),
     library: 'VueUploader',
-    libraryTarget: 'commonjs'
+    libraryTarget: 'umd'
+    // libraryTarget: 'commonjs'
   },
   mode:'development',
   devtool: 'source-map',
