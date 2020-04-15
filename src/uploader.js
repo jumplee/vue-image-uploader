@@ -1,10 +1,11 @@
 import Ctrl from './ctrl'
-import { where, uuid, UPLOAD_STATUS, log, createObjectURL } from './func'
+import func from './func'
+const { where, uuid, UPLOAD_STATUS, log, createObjectURL } = func
 
 /**
  * @version 0.1.1 上传组件
  */
-class Uploader extends Ctrl{
+export default class Uploader extends Ctrl{
   constructor(options){
     super()
     var self = this
@@ -93,16 +94,14 @@ class Uploader extends Ctrl{
 
     file.status = UPLOAD_STATUS.UPLOAD_ING
     xhr.onload = function(){
-
       if (xhr.status < 200 || xhr.status >= 300){
         log(xhr.status)
         self.onFail(file)
         if(options.onError){
-          return option.onError(xhr)
+          return options.onError(xhr)
         }else{
           return false
         }
-        
       }
 
       let json = {}
@@ -269,4 +268,4 @@ class Uploader extends Ctrl{
     this._files = []
   }
 }
-module.exports = Uploader
+

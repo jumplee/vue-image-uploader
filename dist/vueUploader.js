@@ -1,5 +1,14 @@
-module.exports =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["VueUploader"] = factory();
+	else
+		root["VueUploader"] = factory();
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -1355,131 +1364,135 @@ function listToStyles (parentId, list) {
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _func = __webpack_require__(/*! ./func */ "./src/func.js");
 
+var _func2 = _interopRequireDefault(_func);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var log = _func2.default.log;
 exports.default = {
-    data: function data() {
-        return {
-            files: [],
-            uploadSuccessNum: 0,
-            boxWidth: 0,
-            uploadFinish: true,
-            showPanelMask: false,
-            maskText: '',
-            thumb: true
-        };
+  data: function data() {
+    return {
+      files: [],
+      uploadSuccessNum: 0,
+      boxWidth: 0,
+      uploadFinish: true,
+      showPanelMask: false,
+      maskText: '',
+      thumb: true
+    };
+  },
+
+  watch: {
+    show: function show(newVal) {
+      // 当打开的时候
+      if (newVal) {
+        // 禁止body滚动
+        document.body.style.overflow = 'hidden';
+        this.files = this._uploader.getFiles();
+
+        document.addEventListener('keydown', this.onEsc, false);
+      } else {
+        document.removeEventListener('keydown', this.onEsc, false);
+      }
     },
-
-    watch: {
-        show: function show(newVal) {
-
-            // 当打开的时候
-            if (newVal) {
-                //禁止body滚动
-                document.body.style.overflow = 'hidden';
-                this.files = this._uploader.getFiles();
-
-                document.addEventListener('keydown', this.onEsc, false);
-            } else {
-                document.removeEventListener('keydown', this.onEsc, false);
-            }
-        },
-        files: function files(newVal) {
-            var num = 0;
-            newVal.forEach(function (item) {
-                if (item.returnJson && item.returnJson.success) {
-                    num++;
-                }
-            });
-            (0, _func.log)('files update');
-            this.uploadSuccessNum = num;
+    files: function files(newVal) {
+      var num = 0;
+      newVal.forEach(function (item) {
+        if (item.returnJson && item.returnJson.success) {
+          num++;
         }
-    },
-
-    methods: {
-        onEsc: function onEsc(e) {
-            if (e.keyCode === 27) {
-                this.close();
-            }
-        },
-
-        selectFile: function selectFile(e) {
-            var files = e.target.files;
-            var self = this;
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                self._uploader.addFile(file);
-            }
-            // 避免vue不更新
-            self.files = self._uploader.getFiles();
-        },
-        up: function up() {
-            // 没有需要选择的图片
-            if (this.files.length - this.uploadSuccessNum > 0) {
-                if (this.uploadFinish) {
-                    this.uploadFinish = false;
-                    this._uploader.upload();
-                }
-            } else {
-                alert('请选择图片');
-            }
-        },
-        mask: function mask(text) {
-            this.showPanelMask = true;
-            if (text) {
-                this.maskText = text;
-            }
-        },
-
-        del: function del(file) {
-            this._uploader.removeFile(file);
-            this.files = this._uploader.getFiles();
-        },
-        addFile: function addFile() {
-            this.$refs.fileInput.value = null;
-            this.$refs.fileInput.click();
-        },
-        closeDialog: function closeDialog() {
-            this.showPanelMask = false;
-            this.maskText = '';
-        },
-        close: function close(cancel) {
-            var me = this;
-            var files = [];
-            var isAllFinish = true;
-            if (!cancel) {
-                me.files.forEach(function (item) {
-                    if (item.returnJson && item.returnJson.success) {
-                        files.push(item.returnJson);
-                    } else {
-                        isAllFinish = false;
-                        return false;
-                    }
-                });
-            }
-            if (!isAllFinish) {
-                me.mask('有未上传文件');
-                return false;
-            }
-
-            //不再禁止滚动
-            document.body.style.overflow = '';
-            me.$emit('finish', files);
-            me.files = [];
-            // 上传状态
-            me.uploadFinish = true;
-            me.uploadSuccessNum = 0;
-            me._uploader.clear();
-        },
-        percentStyle: function percentStyle(file) {
-            return {
-                width: file.percent + '%'
-            };
-        }
+      });
+      log('files update');
+      this.uploadSuccessNum = num;
     }
+  },
+
+  methods: {
+    onEsc: function onEsc(e) {
+      if (e.keyCode === 27) {
+        this.close();
+      }
+    },
+
+    selectFile: function selectFile(e) {
+      var files = e.target.files;
+      var self = this;
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        self._uploader.addFile(file);
+      }
+      // 避免vue不更新
+      self.files = self._uploader.getFiles();
+    },
+    up: function up() {
+      // 没有需要选择的图片
+      if (this.files.length - this.uploadSuccessNum > 0) {
+        if (this.uploadFinish) {
+          this.uploadFinish = false;
+          this._uploader.upload();
+        }
+      } else {
+        alert('请选择图片');
+      }
+    },
+    mask: function mask(text) {
+      this.showPanelMask = true;
+      if (text) {
+        this.maskText = text;
+      }
+    },
+
+    del: function del(file) {
+      this._uploader.removeFile(file);
+      this.files = this._uploader.getFiles();
+    },
+    addFile: function addFile() {
+      this.$refs.fileInput.value = null;
+      this.$refs.fileInput.click();
+    },
+    closeDialog: function closeDialog() {
+      this.showPanelMask = false;
+      this.maskText = '';
+    },
+    close: function close(cancel) {
+      var me = this;
+      var files = [];
+      var isAllFinish = true;
+      if (!cancel) {
+        me.files.forEach(function (item) {
+          if (item.returnJson && item.returnJson.success) {
+            files.push(item.returnJson);
+          } else {
+            isAllFinish = false;
+            return false;
+          }
+        });
+      }
+      if (!isAllFinish) {
+        me.mask('有未上传文件');
+        return false;
+      }
+
+      // 不再禁止滚动
+      document.body.style.overflow = '';
+      me.$emit('finish', files);
+      me.files = [];
+      // 上传状态
+      me.uploadFinish = true;
+      me.uploadSuccessNum = 0;
+      me._uploader.clear();
+    },
+    percentStyle: function percentStyle(file) {
+      return {
+        width: file.percent + '%'
+      };
+    }
+  }
 };
 
 /***/ }),
@@ -1552,12 +1565,15 @@ exports.default = Ctrl;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 // 文件上传状态
 var isDebug = false;
 
 var counter = 0;
 
-module.exports = {
+exports.default = {
   UPLOAD_STATUS: {
     WAIT: 0,
     UPLOAD_ING: 1,
@@ -1795,6 +1811,10 @@ exports.default = {
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ctrl = __webpack_require__(/*! ./ctrl */ "./src/ctrl.js");
@@ -1802,6 +1822,8 @@ var _ctrl = __webpack_require__(/*! ./ctrl */ "./src/ctrl.js");
 var _ctrl2 = _interopRequireDefault(_ctrl);
 
 var _func = __webpack_require__(/*! ./func */ "./src/func.js");
+
+var _func2 = _interopRequireDefault(_func);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1811,9 +1833,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var where = _func2.default.where,
+    uuid = _func2.default.uuid,
+    UPLOAD_STATUS = _func2.default.UPLOAD_STATUS,
+    log = _func2.default.log,
+    createObjectURL = _func2.default.createObjectURL;
+
 /**
  * @version 0.1.1 上传组件
  */
+
 var Uploader = function (_Ctrl) {
   _inherits(Uploader, _Ctrl);
 
@@ -1867,21 +1896,21 @@ var Uploader = function (_Ctrl) {
       var options = self.options;
 
       if (self.haveUploading()) {
-        (0, _func.log)('正在上传，请等待');
+        log('正在上传，请等待');
         return false;
       }
       var files = self._files;
       var queue = [];
       // 上传的时候将上传失败的文件设置为等待
       files.forEach(function (item) {
-        if (item.status === _func.UPLOAD_STATUS.FAILED) {
-          item.status = _func.UPLOAD_STATUS.WAIT;
+        if (item.status === UPLOAD_STATUS.FAILED) {
+          item.status = UPLOAD_STATUS.WAIT;
         }
       });
 
       for (var _i = 0; _i < files.length; _i++) {
         var file = files[_i];
-        if (file.status === _func.UPLOAD_STATUS.WAIT) {
+        if (file.status === UPLOAD_STATUS.WAIT) {
           file.index = _i;
           queue.push(file);
         }
@@ -1899,7 +1928,7 @@ var Uploader = function (_Ctrl) {
       var file = self._queue[self.queueIndex];
       self.queueIndex++;
       if (typeof file === 'undefined') {
-        (0, _func.log)('已经上传到最后');
+        log('已经上传到最后');
         return false;
       }
       var options = self.options;
@@ -1913,14 +1942,13 @@ var Uploader = function (_Ctrl) {
         formData.append(key, options.param[key]);
       }
 
-      file.status = _func.UPLOAD_STATUS.UPLOAD_ING;
+      file.status = UPLOAD_STATUS.UPLOAD_ING;
       xhr.onload = function () {
-
         if (xhr.status < 200 || xhr.status >= 300) {
-          (0, _func.log)(xhr.status);
+          log(xhr.status);
           self.onFail(file);
           if (options.onError) {
-            return option.onError(xhr);
+            return options.onError(xhr);
           } else {
             return false;
           }
@@ -1977,7 +2005,7 @@ var Uploader = function (_Ctrl) {
         for (var _iterator = self._files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var item = _step.value;
 
-          if (item.status === _func.UPLOAD_STATUS.UPLOAD_ING) {
+          if (item.status === UPLOAD_STATUS.UPLOAD_ING) {
             haveUploading = true;
             break;
           }
@@ -2009,7 +2037,7 @@ var Uploader = function (_Ctrl) {
         var _flag = true;
         self.queueIndex = 0;
         self._files.forEach(function (item) {
-          if (item.status === _func.UPLOAD_STATUS.FAILED) {
+          if (item.status === UPLOAD_STATUS.FAILED) {
             _flag = false;
             return false;
           }
@@ -2021,7 +2049,7 @@ var Uploader = function (_Ctrl) {
     key: 'onSuccess',
     value: function onSuccess(file, json) {
       var self = this;
-      file.status = _func.UPLOAD_STATUS.SUCESS;
+      file.status = UPLOAD_STATUS.SUCESS;
       file.returnJson = json;
       self.trigger('uploadSuccess', file);
       self.onEnd(file);
@@ -2030,7 +2058,7 @@ var Uploader = function (_Ctrl) {
     key: 'onFail',
     value: function onFail(file) {
       var self = this;
-      file.status = _func.UPLOAD_STATUS.FAILED;
+      file.status = UPLOAD_STATUS.FAILED;
       self.trigger('uploadFail', file);
       self.onEnd(file);
     }
@@ -2049,8 +2077,8 @@ var Uploader = function (_Ctrl) {
       }
       var file = {
         source: sourceFile,
-        id: (0, _func.uuid)(),
-        status: _func.UPLOAD_STATUS.WAIT,
+        id: uuid(),
+        status: UPLOAD_STATUS.WAIT,
         thumb: '',
         name: sourceFile.name,
         size: sourceFile.size
@@ -2061,7 +2089,7 @@ var Uploader = function (_Ctrl) {
         if (options.compress) {
           self._makeThumb(file);
         } else {
-          file.thumb = (0, _func.createObjectURL)(sourceFile);
+          file.thumb = createObjectURL(sourceFile);
         }
       }
     }
@@ -2087,7 +2115,7 @@ var Uploader = function (_Ctrl) {
     key: 'makeThumb',
     value: function makeThumb(sourceFile, callback) {
       var thumbOptions = this.options.thumb;
-      var blob_url = (0, _func.createObjectURL)(sourceFile);
+      var blob_url = createObjectURL(sourceFile);
       var temp_image = new Image();
       var canvas = document.createElement('canvas');
       var preview_width = thumbOptions.width;
@@ -2137,7 +2165,7 @@ var Uploader = function (_Ctrl) {
   return Uploader;
 }(_ctrl2.default);
 
-module.exports = Uploader;
+exports.default = Uploader;
 
 /***/ }),
 
@@ -2193,4 +2221,5 @@ if (false) {}
 /***/ })
 
 /******/ });
+});
 //# sourceMappingURL=vueUploader.js.map

@@ -68,7 +68,8 @@ if(process.env.NODE_ENV === 'production'){
       filename: 'vueUploader.js',
       path: path.resolve(__dirname, 'dist'),
       library: 'VueUploader',
-      libraryTarget: 'commonjs2'
+      libraryTarget: 'umd',
+      libraryExport: 'default'
     },
     mode: 'development'
   }

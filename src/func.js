@@ -3,7 +3,7 @@ const isDebug = false
 
 let counter = 0
 
-module.exports = {
+export default {
   UPLOAD_STATUS: {
     WAIT: 0,
     UPLOAD_ING: 1,
