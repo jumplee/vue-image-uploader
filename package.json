@@ -2,7 +2,7 @@
   "name": "vue-image-uploader",
   "version": "1.0.0",
   "description": "vue image upload component",
-  "main": "./dist/vueUploader.js",
+  "main": "./src/index.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack --watch ",
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack ",
