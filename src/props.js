@@ -25,11 +25,18 @@ export default{
     type: Number
   },
   uploadConfig: {
-    default:function(){
+    default: function(){
       return {
         timeout: 120
       }
     },
-    type:Object
+    type: Object
+  },
+  /**
+   * 是否可拖拽
+   */
+  draggable: {
+    default: true,
+    type: Boolean
   }
 }

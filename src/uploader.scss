@@ -35,22 +35,27 @@ $main-color:#20a0ff;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background:rgba(0,0,0,0.5);
     position: fixed;
     overflow: auto;
+
 }
 
 .place-holder {
     text-align: center;
-    margin-top: 200px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
 }
 
 .panel {
-    width: 750px;
     background: white;
     color: #333;
-    margin: 100px auto 0 auto;
-    position: relative;
+    position: fixed;
+    min-width: 450px;
+    min-height: 400px;
     .close {
         position: absolute;
         padding: 1px 15px;
@@ -63,10 +68,10 @@ $main-color:#20a0ff;
 }
 
 .image-list {
-    height: 500px;
-    overflow: auto;
-    padding: 15px;
+    padding: 10px;
     padding-right:0;
+    box-sizing: border-box;
+    overflow: auto;
     @include clearfix();
 }
 
@@ -83,31 +88,37 @@ $main-color:#20a0ff;
     vertical-align: top;
     &:hover {
     }
-    .title {
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        font-size: 14px;
-        padding: 5px;
-        box-sizing: border-box;
-        cursor: pointer;
-        user-select: none;
-    }
-    .cover {
-        height: 100%;
-    }
-    .loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        display: block;
-        width: 44px;
-        margin-top: -24px;
-        margin-left: -22px;
-    }
+
+}
+.image-item__img{
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+.image-item__title{
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-size: 14px;
+    padding: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+}
+.image-item__cover {
+    height: 100%;
+}
+.image-item__loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 44px;
+    margin-top: -24px;
+    margin-left: -22px;
 }
 .percent{
     width: 100%;
@@ -123,16 +134,18 @@ $main-color:#20a0ff;
     }
 }
 
-h3{
+.title{
     padding: 10px 15px;
     border:1px solid #eee;
     margin: 0;
     position: relative;
+    cursor:move;
 }
 .bottom {
+  padding: 10px 15px;
+  border-top: 1px solid #eee;
+  box-sizing: border-box;
     position: relative;
-    padding: 10px 15px;
-    border-top: 1px solid #eee;
 }
 .save-btn{
     position: absolute;
@@ -180,9 +193,48 @@ h3{
     padding: 8px;
     cursor: pointer;
 }
-
-@media(max-width:1300px){
-    .panel{
-        margin-top:20px;
-    }
+.x-dialog-show{
+    display: block;
+}
+.x-dialog-hide{
+    display: none;
+}
+.resizeHandler{
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    cursor: nwse-resize;
+}
+.resizeHandler_w{
+     width: 10px;
+     height: 90%;
+     position: absolute;
+     right: -5px;
+     top: 5%;
+     cursor: e-resize;
+}
+.resizeHandler_e{
+    width: 10px;
+    height: 90%;
+    position: absolute;
+    left: -5px;
+    top: 5%;
+    cursor: w-resize;
+}
+.resizeHandler_n,.resizeHandler_s{
+    height: 10px;
+    width: 90%;
+    position: absolute;
+}
+.resizeHandler_n{
+    left: 5%;
+    top: -5px;
+    cursor: s-resize;
+}
+.resizeHandler_s{
+    left: 5%;
+    bottom: -5px;
+    cursor: n-resize;
 }

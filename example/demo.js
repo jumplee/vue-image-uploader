@@ -10,8 +10,8 @@ var app = new Vue({
     }
   },
   components: {
-    'image-uploader': VueUploader.default.VueImageUploader,
-    'video-uploader': VueUploader.default.VueVideoUploader
+    'image-uploader': VueUploader.VueImageUploader,
+    'video-uploader': VueUploader.VueVideoUploader
   },
   created: function(){
 

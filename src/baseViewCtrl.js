@@ -1,7 +1,7 @@
 import func from './func'
 
 const { log } = func
-
+var throttle = require('lodash.throttle')
 export default {
 
   data(){
@@ -12,20 +12,37 @@ export default {
       uploadFinish: true,
       showPanelMask: false,
       maskText: '',
-      thumb: true
+      thumb: true,
+      imageListStyle: {
+        height: '300px' // 当panel进行resize的时候，计算正确的imageList高度
+      }
     }
   },
   watch: {
     show(newVal){
+      const ctrl = this
       // 当打开的时候
       if (newVal){
         // 禁止body滚动
         document.body.style.overflow = 'hidden'
-        this.files = this._uploader.getFiles()
+        ctrl.files = ctrl._uploader.getFiles()
 
-        document.addEventListener('keydown', this.onEsc, false)
+        document.addEventListener('keydown', ctrl.onEsc, false)
       }else{
-        document.removeEventListener('keydown', this.onEsc, false)
+        // 保证隐藏的时候drag逻辑不执行
+        ctrl._DocListeners.onDocumentMouseUp()
+        document.removeEventListener('keydown', ctrl.onEsc, false)
+      }
+      if(newVal){
+        const dialog = this.$refs.dialog
+        setTimeout(function(){
+          dialog.style.width = 600 + 'px'
+          dialog.style.height = 500 + 'px'
+          ctrl.imageListStyle = {
+            height: (dialog.clientHeight - 110) + 'px'
+          }
+          ctrl.computeDialogStyle(dialog)
+        }, 30)
       }
     },
     files(newVal){
@@ -39,8 +56,88 @@ export default {
       this.uploadSuccessNum = num
     }
   },
-
+  beforeDestroy(){
+    window.removeEventListener('mousemove', this._DocListeners.onDocumentMove)
+    window.removeEventListener('mouseup', this._DocListeners.onDocumentMouseUp)
+    window.removeEventListener('resize', this._DocListeners.onDocumentResize)
+    window.removeEventListener('blur', this._DocListeners.onDocumentResize)
+  },
   methods: {
+    initDragAndResize(){
+      const ctrl = this
+      function inSafeArea(x, y){
+        return (x >= 0 && x < window.innerWidth && y >= 0 && y < window.innerHeight)
+      }
+
+      // 节流提高效率
+      const onDocumentMove = throttle(function(e){
+        const dialog = ctrl.$refs.dialog
+        const pageX = e.pageX
+        const pageY = e.pageY
+        const delaX = e.pageX - ctrl.beforeX
+        const delaY = e.pageY - ctrl.beforeY
+        const beforeTop = parseFloat(dialog.style.top)
+        const beforeLeft = parseFloat(dialog.style.left)
+
+        ctrl.beforeX = pageX
+        ctrl.beforeY = pageY
+        if(ctrl.startDrag && inSafeArea(pageX, pageY)){
+          dialog.style.top = ctrl.safeTop((beforeTop + delaY), dialog)
+          dialog.style.left = ctrl.safeLeft((beforeLeft + delaX), dialog)
+        }
+        if(ctrl.startResize && inSafeArea(pageX, pageY)){
+          const beforeHeight = parseFloat(dialog.offsetHeight)
+          const beforeWidth = parseFloat(dialog.offsetWidth)
+          let newHeight = beforeHeight
+          let newWidth = beforeWidth
+          if(ctrl.resizeDirect === 'w'){
+            newWidth = (beforeWidth + delaX)
+          }else if(ctrl.resizeDirect === 'e'){
+            newWidth = (beforeWidth - delaX)
+            dialog.style.left = ctrl.safeLeft(beforeLeft + delaX, dialog)
+          }else if(ctrl.resizeDirect === 'n'){
+            newHeight = (beforeHeight - delaY)
+            dialog.style.top = ctrl.safeLeft(beforeTop + delaY, dialog)
+          }else if(ctrl.resizeDirect === 's'){
+            newHeight = (beforeHeight + delaY)
+          }else{
+            newHeight = (beforeHeight + delaY)
+            newWidth = (beforeWidth + delaX)
+          }
+
+          dialog.style.width = newWidth + 'px'
+          dialog.style.height = newHeight + 'px'
+
+          ctrl.imageListStyle = {
+            height: (newHeight - 110) + 'px'
+          }
+        }
+      }, 16)// 16~20毫秒保证动画流畅
+      function onDocumentMouseUp(){
+        const dialog = ctrl.$refs.dialog
+        ctrl.startDrag = false
+        ctrl.startResize = false
+        dialog.style.userSelect = 'auto'
+      }
+      function onDocumentResize(){
+        const dialog = ctrl.$refs.dialog
+
+        if(dialog){
+          ctrl.computeDialogStyle(dialog)
+        }
+      }
+      addEventListener('mousemove', onDocumentMove)
+      addEventListener('mouseup', onDocumentMouseUp)
+      addEventListener('resize', onDocumentResize)
+      // 右键或者超出视图等情况导致拖拽逻辑异常，增加blur修复bug
+      addEventListener('blur', onDocumentMouseUp)
+      ctrl._DocListeners = {
+        onDocumentMove,
+        onDocumentMouseUp,
+        onDocumentResize
+      }
+    },
+
     onEsc(e){
       if(e.keyCode === 27){
         this.close()
@@ -117,6 +214,42 @@ export default {
       return {
         width: file.percent + '%'
       }
+    },
+    safeTop(top, dialog){
+      return (Math.min(Math.max(top, 0), window.innerHeight - dialog.clientHeight)) + 'px'
+    },
+
+    safeLeft(left, dialog){
+      return (Math.min(Math.max(left, 0), window.innerWidth - dialog.clientWidth)) + 'px'
+    },
+    computeDialogStyle(dialog){
+      const left = (window.innerWidth - dialog.clientWidth) / 2
+      const top = (window.innerHeight - dialog.clientHeight) / 2
+      dialog.style.left = this.safeLeft(left, dialog)
+      dialog.style.top = this.safeTop(top, dialog)
+    },
+    onHeaderMouseDown(e){
+      const ctrl = this
+      ctrl.beforeX = e.pageX
+      ctrl.beforeY = e.pageY
+      ctrl.$refs.dialog.style.userSelect = 'none'
+      setTimeout(function(){
+        ctrl.startDrag = true
+      }, 50)
+    },
+    /**
+     * resizeStart
+     * @param e
+     */
+    onResizeHandlerMouseDown(e, direct){
+      const ctrl = this
+      ctrl.beforeX = e.pageX
+      ctrl.beforeY = e.pageY
+      ctrl.resizeDirect = direct
+      ctrl.$refs.dialog.style.userSelect = 'none'
+      setTimeout(function(){
+        ctrl.startResize = true
+      }, 100)
     }
   }
 }
