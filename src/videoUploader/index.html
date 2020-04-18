@@ -1,64 +1,73 @@
-<div>
-    <div class="mask" :style="{zIndex:zIndex}" v-show="show">
-        <div class="panel">
-            <div class="panel-mask" v-if="showPanelMask">
-                <div v-if="maskText" class="panel-dialog">
-                    <div class="panel-dialog-text">{{maskText}}</div>
-                    <div class="btn-ios" @click="closeDialog">确 定</div>
-                </div>
+<div :class="show?$style['x-dialog-show']:$style['x-dialog-hide']">
+    <div :class="$style.mask" :style="{zIndex:zIndex}">
+
+    </div>
+    <div :class="$style.panel" :style="{zIndex:zIndex+1}" ref="dialog">
+        <div :class="$style['panel-mask']" v-if="showPanelMask">
+            <div v-if="maskText" :class="$style['panel-dialog']">
+                <div :class="$style['panel-dialog-text']">{{maskText}}</div>
+                <div :class="$style['btn-ios']" @click="closeDialog">确 定</div>
             </div>
-            <h3>选择视频
-                <span class="close" @click="close(true)">×</span>
-            </h3>
-            <div ref="frame" class="image-list">
-                <template v-if="files.length===0">
-                    <div class="place-holder">
-                        <img @click="addFile" src="../images/add.png" alt="">
-                        <div>
-                            <span @click="addFile" class="btn">请添加视频</span>
-                        </div>
+
+        </div>
+        <h3 :class="$style.title" @mousedown="onHeaderMouseDown"
+            @mouseMove="onHeaderMouseUp"
+        >选择视频
+            <span :class="$style.close" @click="close(true)">×</span>
+        </h3>
+        <div :style="imageListStyle" :class="$style['image-list']">
+            <template v-if="files.length===0">
+                <div :class="$style['place-holder']">
+                    <img @click="addFile" src="../images/add.png" alt="">
+                    <div>
+                        <span @click="addFile" :class="$style.btn">请添加视频</span>
                     </div>
-                </template>
-                <div class="image-item" v-for="file in files">
-                    <div class="title">
-                        <template v-if="file.status===2">
-                            <span>上传成功</span>
-                        </template>
-                        <template v-if="file.status===3">
-                            <span>上传失败</span>
-                        </template>
-                        <span style="float:right" @click="del(file)">删除</span>
-                    </div>
-                    <template v-if="file.status===1">
-                        <img class="loader" src="../images/loader.svg" alt="">
+                </div>
+            </template>
+            <div :class="$style['image-item']" v-for="file in files">
+                <div :class="$style['image-item__title']">
+                    <template v-if="file.status===2">
+                        <span>上传成功</span>
                     </template>
-                    <img style="     height: 64px;
-                    margin-top: 36px;" src="../images/video.png" alt="" class="cover">
-                    <div class="name">{{file.name}}</div>
-                    <div class="percent" v-if="file.percent && showProgress">
-                        <div class="percent-inner" :style="percentStyle(file)"></div>
-                    </div>
-                    <img src="../images/ok.png" v-if="file.status===2" alt="" class="ok">
+                    <template v-if="file.status===3">
+                        <span>上传失败</span>
+                    </template>
+                    <span style="float:right" @click="del(file)">删除</span>
                 </div>
-                <div class="image-item" @click="addFile" v-if="files.length>0">
-                    <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
+                <template v-if="file.status===1">
+                    <img :class="$style['image-item__loader']" src="../images/loader.svg" alt="">
+                </template>
+                <img style="     height: 64px;
+                    margin-top: 36px;" src="../images/video.png" alt="" :class="$style.cover">
+                <div :class="$style.name">{{file.name}}</div>
+                <div :class="$style.percent" v-if="file.percent && showProgress">
+                    <div :class="$style.percent-inner" :style="percentStyle(file)"></div>
                 </div>
+                <img src="../images/ok.png"  v-if="file.status===2" alt="" :class="$style.ok">
             </div>
-            <div class="bottom">
-                选择{{files.length}}个视频，需要上传 {{files.length-uploadSuccessNum}}个
-                <template v-if="uploadFinish">
-                    <span class="btn" style="margin-left:15px" @click="up()">
-                        上传
-                    </span>
-                </template>
-                <template v-if="!uploadFinish">
-                    <span class="btn btn-disable" style="margin-left:15px" @click="up()">
-                        上传中...
-                    </span>
-                </template>
-                <span class="btn save-btn" @click="close()">确 定</span>
-                <input ref="fileInput" style="display:none" type="file" @change="selectFile" multiple>
+            <div :class="$style['image-item']" @click="addFile" v-if="files.length>0">
+                <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
             </div>
         </div>
+        <div :class="$style.bottom">
+            选择{{files.length}}个视频，需要上传 {{files.length-uploadSuccessNum}}个
+            <template v-if="uploadFinish">
+                    <span :class="$style.btn" style="margin-left:15px" @click="up()">
+                        上传
+                    </span>
+            </template>
+            <template v-if="!uploadFinish">
+                    <span :class="[$style.btn,$style['btn-disable']]" style="margin-left:15px" @click="up()">
+                        上传中...
+                    </span>
+            </template>
+            <span :class="[$style.btn,$style['save-btn']]" @click="close()">确 定</span>
+            <input ref="fileInput" :accept="fileAccept" style="display:none" type="file" @change="selectFile" multiple>
+        </div>
+        <div :class="$style.resizeHandler_n" @mousedown="function(e){onResizeHandlerMouseDown(e,'n')}"></div>
+        <div :class="$style.resizeHandler_s" @mousedown="function(e){onResizeHandlerMouseDown(e,'s')}"></div>
+        <div :class="$style.resizeHandler_e" @mousedown="function(e){onResizeHandlerMouseDown(e,'e')}"></div>
+        <div :class="$style.resizeHandler_w" @mousedown="function(e){onResizeHandlerMouseDown(e,'w')}"></div>
+        <div :class="$style.resizeHandler" @mousedown="function(e){onResizeHandlerMouseDown(e)}"></div>
     </div>
 </div>

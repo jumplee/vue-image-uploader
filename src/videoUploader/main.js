@@ -23,12 +23,12 @@ const newProps = Object.assign({}, props, {
   }
 })
 /**
- *  
+ *
  *  视频上传组件
- * 
+ *
  */
 
-export default Object.assign({},BaseViewCtrl,{
+export default Object.assign({}, BaseViewCtrl, {
   props: newProps,
   data(){
     return {
@@ -36,29 +36,35 @@ export default Object.assign({},BaseViewCtrl,{
       uploadSuccessNum: 0,
       boxWidth: 0,
       uploadFinish: true,
-      maskText:'',
-      showPanelMask: false
+      maskText: '',
+      showPanelMask: false,
+      imageListStyle: {
+        height: '300px' // 当panel进行resize的时候，计算正确的imageList高度
+      }
     }
   },
   created(){
-    var self = this
+    var ctrl = this
     var uploader = new Uploader(Object.assign({}, {
-      uploadUrl: self.url,
-      accept: self.accept,
-      showProgress: self.showProgress,
+      uploadUrl: ctrl.url,
+      accept: ctrl.accept,
+      showProgress: ctrl.showProgress,
       onAcceptError: function(e){
         alert(e.ext + '类型文件不符合要求')
       }
-    }, self.uploadConfig))
-    self._uploader = uploader
+    }, ctrl.uploadConfig))
+    ctrl._uploader = uploader
     uploader.on('finish', function(success){
-      self.files = self.files.concat()
-      self.uploadFinish = true
+      ctrl.files = ctrl.files.concat()
+      ctrl.uploadFinish = true
     })
     uploader.on('progress', (file) => {
       // let newFile=Object.assign({},file)
-      self.files.splice(file.index, 1, file)
+      ctrl.files.splice(file.index, 1, file)
     })
+    if(ctrl.draggable){
+      ctrl.initDragAndResize()
+    }
   }
 })
 

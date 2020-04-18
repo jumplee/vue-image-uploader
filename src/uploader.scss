@@ -207,34 +207,32 @@ $main-color:#20a0ff;
     bottom: -10px;
     cursor: nwse-resize;
 }
-.resizeHandler_w{
-     width: 10px;
-     height: 90%;
-     position: absolute;
-     right: -5px;
-     top: 5%;
-     cursor: e-resize;
-}
-.resizeHandler_e{
+.resizeHandler_e,.resizeHandler_w{
     width: 10px;
     height: 90%;
     position: absolute;
+    cursor: ew-resize;
+}
+.resizeHandler_w{
+     right: -5px;
+     top: 5%;
+}
+
+.resizeHandler_e{
     left: -5px;
     top: 5%;
-    cursor: w-resize;
 }
 .resizeHandler_n,.resizeHandler_s{
     height: 10px;
     width: 90%;
     position: absolute;
+    cursor: ns-resize;
 }
 .resizeHandler_n{
     left: 5%;
     top: -5px;
-    cursor: s-resize;
 }
 .resizeHandler_s{
     left: 5%;
     bottom: -5px;
-    cursor: n-resize;
 }
