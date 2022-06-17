@@ -17,9 +17,9 @@ $main-color:#20a0ff;
     border: none;
     outline: none;
     margin: 0;
-    padding: 10px 15px;
+    padding: 6px 12px;
     font-size: 14px;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     display: inline-block;
 }
@@ -28,8 +28,6 @@ $main-color:#20a0ff;
     border-color: #eee;
     color:black;
 }
-
-
 .mask {
     top: 0;
     bottom: 0;
@@ -38,7 +36,8 @@ $main-color:#20a0ff;
     background:rgba(0,0,0,0.5);
     position: fixed;
     overflow: auto;
-
+    transition:opacity 3s ease-in ;
+    opacity: 0;
 }
 
 .place-holder {
@@ -56,6 +55,8 @@ $main-color:#20a0ff;
     position: fixed;
     min-width: 450px;
     min-height: 400px;
+    display: flex;
+    flex-direction: column;
     .close {
         position: absolute;
         padding: 1px 15px;
@@ -73,6 +74,7 @@ $main-color:#20a0ff;
     box-sizing: border-box;
     overflow: auto;
     @include clearfix();
+    flex:1;
 }
 
 .image-item {
@@ -194,9 +196,16 @@ $main-color:#20a0ff;
     cursor: pointer;
 }
 .x-dialog-show{
+    position: absolute;
+    top:0;
     display: block;
+    .mask{
+        opacity: 1;
+    }
 }
 .x-dialog-hide{
+    position: absolute;
+    top:0;
     display: none;
 }
 .resizeHandler{
@@ -236,3 +245,39 @@ $main-color:#20a0ff;
     left: 5%;
     bottom: -5px;
 }
+
+
+.param__list{
+@include clearfix;
+
+}
+.param__item{
+    color:#555;
+    vertical-align: top;
+    padding:10px;
+    cursor: pointer;
+    float:left;
+}
+.param__checkbox{
+    display: inline-block;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    box-sizing: border-box;
+    padding: 0 2px;
+    vertical-align: top;
+    /* margin-right: 5px; */
+    margin-left: 5px;
+    position: relative;
+    top: 3px;
+
+    img{
+        width:100%;
+        vertical-align: top;
+        margin-top: 3px;
+    }
+
+}
+

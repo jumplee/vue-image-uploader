@@ -1,6 +1,6 @@
-import VueImageUploader from './imageUploader/uploader.vue'
-import VueVideoUploader from './videoUploader/uploader.vue'
+import VueImageUploader from './imageUploader/main.js'
+import VueVideoUploader from './videoUploader/main.js'
 
-export default{
+export {
   VueImageUploader, VueVideoUploader
 }

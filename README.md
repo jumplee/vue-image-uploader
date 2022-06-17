@@ -5,3 +5,11 @@ vue图片上传，适用于vue2
 ```
 npm install https://github.com/jumplee/vue-image-uploader.git 
 ```
+
+开发说明
+
+```bash
+npm run dev
+npm run test
+
+```

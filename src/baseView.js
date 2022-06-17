@@ -1,50 +1,33 @@
 import func from './func'
+import styles from './uploader.scss'
+import throttle from 'lodash.throttle'
+import addPic from './images/add.png'
+import okPic from './images/ok.png'
+import loaderSvg from './images/loader.svg'
 
 const { log } = func
-var throttle = require('lodash.throttle')
 export default {
-
   data(){
     return {
+      showDialog: false,
+      styles: styles,
+      pic: {
+        addPic,
+        okPic,
+        loaderSvg
+      },
       files: [],
       uploadSuccessNum: 0,
       boxWidth: 0,
       uploadFinish: true,
       showPanelMask: false,
       maskText: '',
-      thumb: true,
-      imageListStyle: {
-        height: '300px' // 当panel进行resize的时候，计算正确的imageList高度
-      }
+      thumb: true
     }
   },
-  watch: {
-    show(newVal){
-      const ctrl = this
-      // 当打开的时候
-      if (newVal){
-        // 禁止body滚动
-        document.body.style.overflow = 'hidden'
-        ctrl.files = ctrl._uploader.getFiles()
 
-        document.addEventListener('keydown', ctrl.onEsc, false)
-      }else{
-        // 保证隐藏的时候drag逻辑不执行
-        ctrl._DocListeners.onDocumentMouseUp()
-        document.removeEventListener('keydown', ctrl.onEsc, false)
-      }
-      if(newVal){
-        const dialog = this.$refs.dialog
-        setTimeout(function(){
-          dialog.style.width = 600 + 'px'
-          dialog.style.height = 500 + 'px'
-          ctrl.imageListStyle = {
-            height: (dialog.clientHeight - 110) + 'px'
-          }
-          ctrl.computeDialogStyle(dialog)
-        }, 30)
-      }
-    },
+  watch: {
+    show: 'onShowChange',
     files(newVal){
       let num = 0
       newVal.forEach((item) => {
@@ -57,14 +40,24 @@ export default {
     }
   },
   beforeDestroy(){
-    window.removeEventListener('mousemove', this._DocListeners.onDocumentMove)
-    window.removeEventListener('mouseup', this._DocListeners.onDocumentMouseUp)
+    const $el = this.$el
+    $el.removeEventListener('mousemove', this._DocListeners.onDocumentMove)
+    $el.removeEventListener('mouseup', this._DocListeners.onDocumentMouseUp)
     window.removeEventListener('resize', this._DocListeners.onDocumentResize)
-    window.removeEventListener('blur', this._DocListeners.onDocumentResize)
+    $el.removeEventListener('blur', this._DocListeners.onDocumentResize)
+  },
+  mounted(){
+    const ctrl = this
+    if(ctrl.draggable){
+      ctrl.initDragAndResize()
+    }
+    // 初始化show，如果show默认是true，需要执行一遍
+    ctrl.onShowChange(ctrl.show)
   },
   methods: {
     initDragAndResize(){
       const ctrl = this
+      const $el = ctrl.$el
       function inSafeArea(x, y){
         return (x >= 0 && x < window.innerWidth && y >= 0 && y < window.innerHeight)
       }
@@ -79,13 +72,14 @@ export default {
         const beforeTop = parseFloat(dialog.style.top)
         const beforeLeft = parseFloat(dialog.style.left)
 
-        ctrl.beforeX = pageX
-        ctrl.beforeY = pageY
         if(ctrl.startDrag && inSafeArea(pageX, pageY)){
           dialog.style.top = ctrl.safeTop((beforeTop + delaY), dialog)
           dialog.style.left = ctrl.safeLeft((beforeLeft + delaX), dialog)
         }
         if(ctrl.startResize && inSafeArea(pageX, pageY)){
+          // if(Math.abs(delaY) < 5 || Math.abs(delaX) < 5){
+          //   return
+          // }
           const beforeHeight = parseFloat(dialog.offsetHeight)
           const beforeWidth = parseFloat(dialog.offsetWidth)
           let newHeight = beforeHeight
@@ -107,11 +101,9 @@ export default {
 
           dialog.style.width = newWidth + 'px'
           dialog.style.height = newHeight + 'px'
-
-          ctrl.imageListStyle = {
-            height: (newHeight - 110) + 'px'
-          }
         }
+        ctrl.beforeX = pageX
+        ctrl.beforeY = pageY
       }, 16)// 16~20毫秒保证动画流畅
       function onDocumentMouseUp(){
         const dialog = ctrl.$refs.dialog
@@ -126,15 +118,49 @@ export default {
           ctrl.computeDialogStyle(dialog)
         }
       }
-      addEventListener('mousemove', onDocumentMove)
-      addEventListener('mouseup', onDocumentMouseUp)
-      addEventListener('resize', onDocumentResize)
+      $el.addEventListener('mousemove', onDocumentMove)
+      $el.addEventListener('mouseup', onDocumentMouseUp)
+      window.addEventListener('resize', onDocumentResize)
       // 右键或者超出视图等情况导致拖拽逻辑异常，增加blur修复bug
-      addEventListener('blur', onDocumentMouseUp)
+      $el.addEventListener('blur', onDocumentMouseUp)
       ctrl._DocListeners = {
         onDocumentMove,
         onDocumentMouseUp,
         onDocumentResize
+      }
+    },
+    onShowChange(newVal){
+      const ctrl = this
+      // 当打开的时候
+      if (newVal){
+        // 禁止body滚动
+        document.body.style.overflow = 'hidden'
+        ctrl.files = ctrl._uploader.getFiles()
+        document.addEventListener('keydown', ctrl.onEsc, false)
+      }else{
+        // 保证隐藏的时候drag逻辑不执行
+        ctrl._DocListeners.onDocumentMouseUp()
+        document.removeEventListener('keydown', ctrl.onEsc, false)
+      }
+      if(newVal){
+        const dialog = this.$refs.dialog
+        dialog.style.width = 600 + 'px'
+        dialog.style.height = 500 + 'px'
+        ctrl.computeDialogStyle(dialog, 600, 500)
+        ctrl.showDialog = true
+      }else{
+        ctrl.showDialog = false
+      }
+    },
+    getDragDirection(pageX, pageY, dialog){
+      const top = parseFloat(dialog.style.top)
+      const left = parseFloat(dialog.style.left)
+      const bottom = top - dialog.clientHeight
+      const right = left + dialog.clinetWidth
+      if(pageX < bottom + 5 && pageX > bottom - 5){
+        if(pageY < right + 5 && pageY > right - 5){
+          return 2
+        }
       }
     },
 
@@ -153,12 +179,17 @@ export default {
       // 避免vue不更新
       self.files = self._uploader.getFiles()
     },
+    /**
+     * 上传页面
+     */
     up: function(){
+      const ctrl = this
       // 没有需要选择的图片
       if (this.files.length - this.uploadSuccessNum > 0){
         if (this.uploadFinish){
-          this.uploadFinish = false
-          this._uploader.upload()
+          ctrl.uploadFinish = false
+          ctrl._uploader.options.param = ctrl.extraParamsConvertFunction(ctrl.extraParams)
+          ctrl._uploader.upload()
         }
       } else {
         alert('请选择图片')
@@ -222,12 +253,15 @@ export default {
     safeLeft(left, dialog){
       return (Math.min(Math.max(left, 0), window.innerWidth - dialog.clientWidth)) + 'px'
     },
-    computeDialogStyle(dialog){
-      const left = (window.innerWidth - dialog.clientWidth) / 2
-      const top = (window.innerHeight - dialog.clientHeight) / 2
+    computeDialogStyle(dialog, width, height){
+      width = width || dialog.clientWidth
+      height = height || dialog.clientHeight
+      const left = (window.innerWidth - width) / 2
+      const top = (window.innerHeight - height) / 2
       dialog.style.left = this.safeLeft(left, dialog)
       dialog.style.top = this.safeTop(top, dialog)
     },
+    onHeaderMouseUp(e){},
     onHeaderMouseDown(e){
       const ctrl = this
       ctrl.beforeX = e.pageX
@@ -250,6 +284,16 @@ export default {
       setTimeout(function(){
         ctrl.startResize = true
       }, 100)
+    },
+    /**
+     * 当单击额外参数的时候
+     * @param param
+     * @param index
+     */
+    onParamClick(param, index){
+      param.checked = !param.checked
+      this.$set(this.extraParams, index, param)
     }
+
   }
 }

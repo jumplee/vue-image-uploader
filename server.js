@@ -2,20 +2,20 @@ var express = require('express')
 var multiparty = require('multiparty')
 var util = require('util')
 var fs = require('fs')
-
+const path = require('path')
 var app = express()
 app.use(express.static('.'))
 app.use(express.static('dist'))
 app.use(express.static('server'))
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function(req, res){
-  res.send('hello world')
+  res.send('<a href="example">例子</a>')
 })
 
 /* 上传*/
 app.post('/file/uploading', function(req, res, next){
   // 生成multiparty对象，并配置上传目标路径
-  var form = new multiparty.Form({ uploadDir: './server/temp/' })
+  var form = new multiparty.Form({ uploadDir: path.resolve('./server/temp') })
   // 上传完成后处理
   form.parse(req, function(err, fields, files){
     var filesTmp = JSON.stringify(files, null, 2)

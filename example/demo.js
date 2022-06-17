@@ -1,3 +1,5 @@
+/* global Vue  VueUploader */
+Vue.config.devtools = true
 var app = new Vue({
   el: '#app',
   data: {
@@ -7,7 +9,19 @@ var app = new Vue({
     videos: [],
     uploadConfig: {
       timeout: 0
-    }
+    },
+    extraParams: [
+      {
+        label: '原图',
+        key: 'original_flag',
+        checked: false
+      },
+      {
+        label: '水印',
+        key: 'water_mark_flag',
+        checked: true
+      }
+    ]
   },
   components: {
     'image-uploader': VueUploader.VueImageUploader,

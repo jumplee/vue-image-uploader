@@ -1,6 +1,7 @@
 import Uploader from '../uploader'
-import BaseViewCtrl from '../baseViewCtrl'
 import props from '../props'
+import baseView from '../baseView'
+import template from './index.html'
 
 /**
  *
@@ -8,11 +9,14 @@ import props from '../props'
  *
  */
 
-export default Object.assign({}, BaseViewCtrl, {
+export default {
+  name: 'imageUploader',
+  template: template,
+  mixins: [baseView],
   props: props,
-
   created(){
     var ctrl = this
+    ctrl.$style = this.styles
     var uploader = new Uploader(Object.assign({}, {
       uploadUrl: ctrl.url,
       accept: ctrl.accept,
@@ -31,9 +35,5 @@ export default Object.assign({}, BaseViewCtrl, {
       // let newFile=Object.assign({},file)
       ctrl.files.splice(file.index, 1, file)
     })
-    if(ctrl.draggable){
-      ctrl.initDragAndResize()
-    }
   }
-
-})
+}

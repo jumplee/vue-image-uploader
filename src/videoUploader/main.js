@@ -1,6 +1,13 @@
 import Uploader from '../uploader'
-import BaseViewCtrl from '../baseViewCtrl'
 import props from '../props'
+import baseView from '../baseView'
+import template from './index.html'
+import styles from '../uploader.scss'
+import addPic from '../images/add.png'
+import okPic from '../images/ok.png'
+import loaderSvg from '../images/loader.svg'
+import videoPic from '../images/video.png'
+
 const newProps = Object.assign({}, props, {
   accept: {
     type: Array,
@@ -28,23 +35,32 @@ const newProps = Object.assign({}, props, {
  *
  */
 
-export default Object.assign({}, BaseViewCtrl, {
+export default {
+  name: 'videoUploader',
+  template: template,
   props: newProps,
+  mixins: [baseView],
   data(){
     return {
+      showDialog: false,
+      pic: {
+        addPic,
+        okPic,
+        videoPic,
+        loaderSvg
+      },
+      styles: styles,
       files: [],
       uploadSuccessNum: 0,
       boxWidth: 0,
       uploadFinish: true,
       maskText: '',
-      showPanelMask: false,
-      imageListStyle: {
-        height: '300px' // 当panel进行resize的时候，计算正确的imageList高度
-      }
+      showPanelMask: false
     }
   },
   created(){
     var ctrl = this
+    ctrl.$style = this.styles
     var uploader = new Uploader(Object.assign({}, {
       uploadUrl: ctrl.url,
       accept: ctrl.accept,
@@ -62,9 +78,6 @@ export default Object.assign({}, BaseViewCtrl, {
       // let newFile=Object.assign({},file)
       ctrl.files.splice(file.index, 1, file)
     })
-    if(ctrl.draggable){
-      ctrl.initDragAndResize()
-    }
   }
-})
+}
 

@@ -1,4 +1,4 @@
-<div :class="show?$style['x-dialog-show']:$style['x-dialog-hide']">
+<div :class="showDialog?$style['x-dialog-show']:$style['x-dialog-hide']">
     <div :class="$style.mask" :style="{zIndex:zIndex}">
 
     </div>
@@ -15,10 +15,10 @@
         >选择图片
             <span :class="$style.close" @click="close(true)">×</span>
         </h3>
-        <div :style="imageListStyle" :class="$style['image-list']">
+        <div :class="$style['image-list']">
             <template v-if="files.length===0">
                 <div :class="$style['place-holder']">
-                    <img @click="addFile" src="../images/add.png" alt="">
+                    <img @click="addFile" :src="pic.addPic" alt="">
                     <div>
                         <span @click="addFile" :class="$style.btn">请添加图片</span>
                     </div>
@@ -35,17 +35,25 @@
                     <span style="float:right" @click="del(file)">删除</span>
                 </div>
                 <template v-if="file.status===1">
-                    <img :class="$style['image-item__loader']" src="../images/loader.svg" alt="">
+                    <img :class="$style['image-item__loader']" :src="pic.loaderSvg" alt="">
                 </template>
                 <img :class="$style['image-item__img']" :src="file.thumb" alt="">
 
                 <div :class="$style.percent" v-if="file.percent && showProgress">
-                    <div :class="$style.percent-inner" :style="percentStyle(file)"></div>
+                    <div :class="$style['percent-inner']" :style="percentStyle(file)"></div>
                 </div>
-                <img src="../images/ok.png"  v-if="file.status===2" alt="" :class="$style.ok">
+                <img :src="pic.okPic"  v-if="file.status===2" alt="" :class="$style.ok">
             </div>
             <div :class="$style['image-item']" @click="addFile" v-if="files.length>0">
-                <img style="margin-top: 25px;" src="../images/add.png" alt="添加视频">
+                <img style="margin-top: 25px;" :src="pic.addPic" alt="添加视频">
+            </div>
+        </div>
+        <div v-if="extraParams.length" :class="$style.param__list">
+            <div @click="onParamClick(param,index)" :class="$style.param__item" v-for="(param,index) in extraParams">
+                <span :class="$style.param__checkbox">
+                    <img v-show="param.checked" :src="pic.okPic" alt="checkbox">
+                </span>
+                {{param.label}}
             </div>
         </div>
         <div :class="$style.bottom">

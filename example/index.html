@@ -6,19 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>测试图片上传</title>
-    <script src="http://cdn.bootcss.com/vue/2.3.0/vue.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.js"></script>
 </head>
 
 <body>
     <div id="app">
         <button @click="addPicture()">添加图片</button>
         <button @click="addVideo()">添加视频</button>
-        <div style="background:lightblue;height:1000px;">1234 </div> 
-        <image-uploader url="/file/uploading" :show-progress="true" @finish="onFinish" :show="showUploader"></image-uploader>
-        <video-uploader :upload-config="uploadConfig" url="/file/uploading" :show-progress="true" @finish="onFinish2" :show="showVideo"></image-uploader>
-        <div class="item" v-for="file in files">
-            <img :src="file.fileUrl" alt="">
-        </div>
+        <image-uploader :extra-params="extraParams" url="/file/uploading" :show-progress="true" @finish="onFinish" :show="showUploader"></image-uploader>
+        <video-uploader :upload-config="uploadConfig" url="/file/uploading"
+                        :show-progress="true" @finish="onFinish2" :show="showVideo"></video-uploader>
+
+            <div class="item" v-for="file in files">
+                <img :src="file.fileUrl" alt="">
+            </div>
         <div class="item" v-for="v in videos">
             <video width="100px" :src="v.fileUrl" alt="" controls></video>
         </div>
